@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Livello_1" data-name="Livello 1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 64 64">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #fff;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 6.4px;
+      }
+    </style>
+  </defs>
+  <g id="SVGRepo_iconCarrier" data-name="SVGRepo iconCarrier">
+    <path class="cls-1" d="M50,16.2c-8.7-10-23.9-10.9-33.9-2.2s-10.9,23.9-2.2,33.9c8.7,10,23.9,10.9,33.9,2.2,10-8.7,10.9-23.9,2.2-33.9Z"/>
+    <path class="cls-1" d="M20,42.6l12-10.6"/>
+    <path class="cls-1" d="M33,16l-1,16"/>
+  </g>
+</svg>
