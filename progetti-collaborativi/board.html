@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="it-IT" class="overlay-chiuso">
+    <head>
+        <meta charset="UTF-8">
+        <title>Progetti Collaborativi</title>
+        <meta name="author" content="Luigi Puca">
+        <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
+        <link rel="icon" href="assets/favicon/favicon.ico" type="image/x-icon">
+        <!-- <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"> -->
+        <link rel="manifest" href="site.webmanifest">
+        <link rel="mask-icon" href="assets/favicon/safari-pinned-tab.svg" color="#5bbad5">
+        <meta name="msapplication-TileColor" content="#da532c">
+        <!-- Per definire un viewport della pagina e rendere la sua larghezza coincidente con quella del dispositivo -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <link rel="stylesheet" href="css/style.css" type="text/css">
+        <link rel="stylesheet" href="css/notification.css" type="text/css">
+        <link rel="stylesheet" href="css/popups.css" type="text/css">
+        <link rel="stylesheet" href="css/teamboard.css" type="text/css">
+        <link rel="stylesheet" href="css/overlay.css" type="text/css">
+        <link rel="stylesheet" href="css/post_menu_forms.css" type="text/css">
+        <meta name="theme-color" content="rgb(18, 0, 36)">
+    </head>
+    <body class="overlay-chiuso">
+        <div class="notifica"></div>
+        <div class="grid-container">
+            
+            <div class="header">
+                <div class="procol">
+                    <img src="assets/procol-long-logo.svg" alt="logo" srcset="assets/procol-long-logo.svg">  
+                </div>
+                <div class="fantoccio"></div>
+                
+            </div>
+            <div class="navbar">
+                <div class="ul-nav">
+                <ul>
+                    <li class="scroll-a-sx">&#8249</li>
+                    <li><a page="home" href="home.html">Home</a></li>
+                    <li class="admin-dashboard --hidden"><a href="dashboard.html">Admin Dashboard</a></li>
+                    <li><a class="team-nav --hidden" page="team" href="team.html">Team</a></li>
+                    <li class="dropdown --hidden">
+                        <div class="dropdown-container"><a href="javascript:void(0)" page="board" class="dropbtn">Progetti</a>
+                            <div class="dropdown-content" id="d0"></div>
+                        </div>
+                    </li>
+                    <li><a href="Specifica%20Requisiti%20-%20Progetti%20Collaborativi.pdf" target="_blank">Documentazione</a></li>
+                    <li><a href="mailto:luigi.puca3@studenti.unicampania.it?subject=%5BProCol%5D%20%2D%20Inserire%20qui%20l'%20Oggetto&body=Inserire%20qui%20una%20descrizione" target="_blank">Contattaci</a></li>
+                    <li class="scroll-a-dx">&#8250</li>
+                </ul>
+            </div>
+                <div class="spacer"></div>
+                <div class="dropdown">
+                    <div class="dropdown-container"><a href="javascript:void(0)" class="dropbtn no-move"><span class="img-container"><img src="assets/svg-images/dashboard/account.svg" alt="User" srcset="assets/svg-images/dashboard/account.svg"></span></a>
+                        <div class="dropdown-content" id="d2">
+                            <a class="popup--apri --hidden" href="login.html">Accedi</a>
+                            <a class="logout --hidden" href="javascript:void(0)">Esci</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="navmenu">
+                <div class="left-navmenu">
+                    <div class="nav-container">
+                    </div>
+                    <div class="nav-filler">
+                    </div>
+                </div>
+                <div class="button-navmenu"></div>
+            </div>
+            <div class="n-background">
+            </div>
+            <div class="main">
+                <div class="project">
+                    <div id="nome-progetto"></div>
+                    <div id="scadenza-progetto"></div>
+                    <div id="descrizione-progetto"></div>
+                </div>
+                <div class="board">
+
+
+                    <div id="a-c-Container">
+                        <button id="add-category" onclick="addCategory(event)"><h4 id="a-c"> Aggiungi un'altra categoria </h4></button>
+                    </div>
+                                       
+                </div>
+                
+            </div>
+            <div class="m-background"></div>
+
+            <div class="footer">
+                <div class="footer-bar">
+                    <ul>
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="Specifica%20Requisiti%20-%20Progetti%20Collaborativi.pdf" target="_blank">Documentazione</a></li>
+                        <li><a href="mailto:luigi.puca3@studenti.unicampania.it?subject=%5BProCol%5D%20%2D%20Inserire%20qui%20l'%20Oggetto&body=Inserire%20qui%20una%20descrizione" target="_blank">Contattaci</a></li>
+                    </ul>
+                </div>
+                <div class="footer-copyright"><p>Copyright &copy; Febbraio 2024 - Oggi; Designed by <span id="designer">Luigi Puca</span>
+              </p></div>
+            </div>
+        </div>
+
+        
+        <div class="overlay-container">
+            <div class="overlay-content">
+                <button id="sheet-button" title="abbasso overlay"></button>
+                <div class="overlay-icons">
+                    <img src="assets/svg-images/mini-leave.svg" class="icon minimizza" alt="🗕" onload="">
+                    <img src="assets/svg-images/top-leave.svg" class="icon cima" alt="↑" onload="">
+                    <img src="assets/svg-images/bottom-leave.svg" class="icon fondo" alt="↓" onload="">
+                    <img src="assets/svg-images/refresh-leave.svg" class="icon ricarica" alt="🗘" onload="">
+                    <img src="assets/svg-images/back-leave.svg" class="icon indietro" alt="✖" onload="">
+                    <img src="assets/svg-images/burger-leave.svg" class="icon burger" alt="Menu">
+                </div>
+                <div class="overlay-grid">
+                    <div class="overlay-thread">
+                        <div class="overlay-in-risposta">
+                            <div class = "intestazione-commento">
+                                <div class = "info-commento"> 
+                                    <div class="altre-info">
+                                        <p class="utente">In risposta al</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="corpo-commento">
+                                <p></p>
+                            </div>
+                        </div> 
+                        <div class="overlay-post">
+                            <div class = "intestazione-commento">
+                                <div class = "info-commento">
+                                    <div class="user-frame">
+                                        <div class="avatar">U P</div> 
+                                        <div class="altre-info">
+                                            <p class="utente">Luigi Campi</p>
+                                            <a href="mailto:" target="_blank" class="email-utente">go@pro.com</a>
+                                            <p class="data-invio"> 22 giorni fa </p>
+                                        </div>
+                                    </div>
+                                    <div class="titolo-post">Titolo</div>
+                                </div>
+                            </div>
+                            <div class="corpo-commento">
+                                <p>Corpo Commento</p>
+                                <h6 class="--no-descrizione">Aggiungi descrizione</h6>
+                            </div>
+                            <div class="allarga-stringi">
+                                <img src="assets/svg-images/up-leave.svg" class="icon stringi" alt="↑" onload="">
+                                <img src="assets/svg-images/down-leave.svg" class="icon allarga" alt="↓" onload="">
+                            </div>
+                            
+                        </div>
+                        <div class="overlay-comments">
+                           
+                        </div>
+                        <div class="overlay-reply">
+                            <div class="overlay-attach"></div>
+                            <div class="overlay-textarea">
+                               <form id="--reply-form" method="post">
+                                
+                                <div id="--reply-box">
+                                    <button type="button" id="annulla-reply">✗</button>
+                                    <div class="textarea" title="casella di risposta" placeholder="Aggiungi un Commento" className="contentEditable" role="textbox" contenteditable="true" required></div>
+                                    <button type="submit" id="submit-reply" name="operazione" data-operazione="" style="visibility: hidden;" disabled></button>
+                                    <button type="button" id="conferma-reply">➔</button>
+                                </div>
+                                <input type="hidden" id="id-progetto-target" name="id_progetto" value="">
+                                <input type="hidden" id="categoria-target" name="categoria" value="">
+                                <input type="hidden" id="uuid-scheda-target" name="uuid_scheda" value="">
+                                <input type="hidden" id="uuid-commento-target" name="uuid_commento">
+                                </form>
+                            </div>
+                            
+                        </div>
+
+                    </div>
+                    <div class="overlay-assign">
+                        
+                            
+                    </div>
+                    <div class="overlay-shift"></div>
+                    <div class="overlay-duration"></div>
+                    <div class="overlay-report"></div>
+                    <div class="overlay-menu">
+                        <ul class="--hidden" id="OP">
+                            <li class="intestazione-categoria">Ordina per</li>
+                            <li class="tasti-menu --active-order" id="pr"><div><p>Più Recente</p></div></li>
+                            <li class="tasti-menu" id="mr"><div><p>Meno Recente</p></div></li>
+                            <hr>
+                        </ul>
+                        <ul class="--hidden" id="AS">
+                            <li class="intestazione-categoria">Assegnato a</li>                        
+                            <li class="tasti-menu" id="ut"><div><p>Utente</p></div></li>
+                            <li class="tasti-menu" id="ai"><div><p>Dal</p></div></li>
+                            <li class="tasti-menu" id="af"><div><p>Al</p></div></li>                            
+                            <hr>
+                        </ul>
+                        <ul class="--hidden" id="AZ">
+                            <li class="intestazione-categoria">Azioni</li>
+                            <li class="tasti-menu --hidden" id="as"><div><a href="javascript:void(0)">Assegna</a></div></li>
+                            <li class="tasti-menu --hidden" id="md"><div><a href="javascript:void(0)">Modifica</a></div></li>
+                            <li class="tasti-menu --hidden" id="pg"><div><a href="javascript:void(0)">Programma</a></div></li>
+                            <li class="tasti-menu" id="sp"><div><a href="javascript:void(0)">Sposta</a></div></li>
+                            <li class="tasti-menu --hidden" id="el"><div><a href="javascript:void(0)">Elimina</a></div></li>
+                            <hr>
+                        </ul>
+                        <ul class="--hidden" id="AT">
+                            <li class="intestazione-categoria">Attività</li>
+                            <li class="info-menu " id="st"><div><p>Stato</p></div></li>
+                            <li class="info-menu " id="di"><div><p>Inizio</p></div></li> 
+                            <li class="info-menu " id="ds"><div><p>Scadenza</p></div></li>                            
+                            <li class="info-menu " id="df"><div><p>Finita</p></div></li>  
+                            <li class="tasti-menu --hidden" id="rs"><a href="javascript:void(0)">Resoconto</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            const btnApri = document.querySelector('.popup--apri');
+            const eventMaxiHandlers = new WeakMap();
+
+            let dataOdierna = new Date();
+            // Array dei nomi dei mesi in italiano
+            const mesiItaliani = [
+                "Gennaio", "Febbraio", "Marzo", "Aprile", 
+                "Maggio", "Giugno", "Luglio", "Agosto", 
+                "Settembre", "Ottobre", "Novembre", "Dicembre"
+            ];
+            // il mese corrente ottenuto sarà numerico, da 0 a 11 quindi facciamo uan conversione. Per gli anni non avremo problemi
+            let dataFormattata = `${mesiItaliani[dataOdierna.getMonth()]} ${dataOdierna.getFullYear()}`;
+            // Selezioniamo l'elemento del footer, otteniamo il testo attuale e sostituiamo 'Oggi' con la data vera e propria di oggi
+            const footerElement = document.querySelector('.footer-copyright p');
+            let testoFooter = footerElement.innerHTML;
+            testoFooter = testoFooter.replace('Oggi', dataFormattata);
+            footerElement.innerHTML = testoFooter;
+        </script>
+        <script src="scripts/navbar_dropdown.js"></script>
+        <script src="scripts/navbar_scrolling.js"></script>
+        <script src="scripts/navmenu.js"></script>
+        <script type="text/javascript" src="scripts/notifica.js"></script>
+        <script src="scripts/locking_scroll.js" defer></script>
+        <script src="scripts/box_conferma.js" defer></script>
+        <script src="scripts/bouncing_text.js"></script>
+        <script type="text/javascript" src="scripts/richiesta.js" defer></script>
+        
+        
+        <!-- sezione che riguarda il main e la sua board -->
+        <script src="scripts/main.js" defer></script>
+        <script src="scripts/board/info_board.js" defer></script>
+        <script src="scripts/info_varie.js" defer></script>
+        <script src="scripts/board/gestione_schede.js" defer></script>
+        <script src="scripts/board/scheda_overlay.js" defer></script>
+        <script src="scripts/board/thread.js" defer></script> 
+        <script src="scripts/board/icone.js" defer></script>
+        <script src="scripts/board/schede_e_categorie.js" defer></script>
+        <script src="scripts/board/board_schede.js" defer></script>
+        
+        
+        
+        
+        
+        
+    
+    </body>
+</html>

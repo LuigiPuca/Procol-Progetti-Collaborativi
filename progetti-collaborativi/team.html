@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="it-IT" class="overlay-chiuso">
+    <head>
+        <meta charset="UTF-8">
+        <title>Progetti Collaborativi</title>
+        <meta name="author" content="Luigi Puca">
+        <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
+        <link rel="icon" href="assets/favicon/favicon.ico" type="image/x-icon">
+        <!-- <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"> -->
+        <link rel="manifest" href="site.webmanifest">
+        <link rel="mask-icon" href="assets/favicon/safari-pinned-tab.svg" color="#5bbad5">
+        <meta name="msapplication-TileColor" content="#da532c">
+        <!-- Per definire un viewport della pagina e rendere la sua larghezza coincidente con quella del dispositivo -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <link rel="stylesheet" href="css/style.css" type="text/css">
+        <link rel="stylesheet" href="css/notification.css" type="text/css">
+        <link rel="stylesheet" href="css/popups.css" type="text/css">
+        <link rel="stylesheet" href="css/team.css">
+        <meta name="theme-color" content="rgb(18, 0, 36)">
+    </head>
+    <body class="overlay-chiuso">
+        <div class="notifica"></div>
+        <div class="grid-container">
+            
+            <div class="header">
+                <div class="procol">
+                    <img src="assets/procol-long-logo.svg" alt="logo" srcset="assets/procol-long-logo.svg">  
+                </div>
+                <div class="fantoccio"></div>
+                
+            </div>
+            <div class="navbar">
+                <div class="ul-nav">
+                <ul>
+                    <li class="scroll-a-sx">&#8249</li>
+                    <li><a page="home" href="home.html">Home</a></li>
+                    <li class="admin-dashboard --hidden"><a href="dashboard.html">Admin Dashboard</a></li>
+                    <li><a class="team-nav --hidden" page="team" href="team.html">Team</a></li>
+                    <li class="dropdown --hidden">
+                        <div class="dropdown-container"><a href="javascript:void(0)" page="board" class="dropbtn">Progetti</a>
+                            <div class="dropdown-content" id="d0"></div>
+                        </div>
+                    </li>
+                    <li><a href="Specifica%20Requisiti%20-%20Progetti%20Collaborativi.pdf" target="_blank">Documentazione</a></li>
+                    <li><a href="mailto:luigi.puca3@studenti.unicampania.it?subject=%5BProCol%5D%20%2D%20Inserire%20qui%20l'%20Oggetto&body=Inserire%20qui%20una%20descrizione" target="_blank">Contattaci</a></li>
+                    <li class="scroll-a-dx">&#8250</li>
+                </ul>
+            </div>
+                <div class="spacer"></div>
+                <div class="dropdown">
+                    <div class="dropdown-container"><a href="javascript:void(0)" class="dropbtn no-move"><span class="img-container"><img src="assets/svg-images/dashboard/account.svg" alt="User" srcset="assets/svg-images/dashboard/account.svg"></span></a>
+                        <div class="dropdown-content" id="d2">
+                            <a class="popup--apri --hidden" href="login.html">Accedi</a>
+                            <a class="logout --hidden" href="javascript:void(0)">Esci</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="navmenu">
+                <div class="left-navmenu">
+                    <div class="nav-container">
+                    </div>
+                    <div class="nav-filler">
+                    </div>
+                </div>
+                <div class="button-navmenu"></div>
+            </div>
+            <div class="n-background">
+            </div>
+            <div class="main">
+                <div class="team">
+                    <div id="myTeam"></div>
+                    <div class="membri-container">
+                        <div class="membri"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="m-background"></div>
+
+            <div class="footer">
+                <div class="footer-bar">
+                    <ul>
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="Specifica%20Requisiti%20-%20Progetti%20Collaborativi.pdf" target="_blank">Documentazione</a></li>
+                        <li><a href="mailto:luigi.puca3@studenti.unicampania.it?subject=%5BProCol%5D%20%2D%20Inserire%20qui%20l'%20Oggetto&body=Inserire%20qui%20una%20descrizione" target="_blank">Contattaci</a></li>
+                    </ul>
+                </div>
+                <div class="footer-copyright"><p>Copyright &copy; Febbraio 2024 - Oggi; Designed by <span id="designer">Luigi Puca</span>
+              </p></div>
+            </div>
+        </div>
+
+        <script>
+            const btnApri = document.querySelector('.popup--apri');
+            const eventMaxiHandlers = new WeakMap();
+
+            let dataOdierna = new Date();
+            // Array dei nomi dei mesi in italiano
+            const mesiItaliani = [
+                "Gennaio", "Febbraio", "Marzo", "Aprile", 
+                "Maggio", "Giugno", "Luglio", "Agosto", 
+                "Settembre", "Ottobre", "Novembre", "Dicembre"
+            ];
+            // il mese corrente ottenuto sarà numerico, da 0 a 11 quindi facciamo uan conversione. Per gli anni non avremo problemi
+            let dataFormattata = `${mesiItaliani[dataOdierna.getMonth()]} ${dataOdierna.getFullYear()}`;
+            // Selezioniamo l'elemento del footer, otteniamo il testo attuale e sostituiamo 'Oggi' con la data vera e propria di oggi
+            const footerElement = document.querySelector('.footer-copyright p');
+            let testoFooter = footerElement.innerHTML;
+            testoFooter = testoFooter.replace('Oggi', dataFormattata);
+            footerElement.innerHTML = testoFooter;
+        </script>
+        <script type="text/javascript" src="scripts/navbar_dropdown.js"></script>
+        <script type="text/javascript" src="scripts/navbar_scrolling.js"></script>
+        <script type="text/javascript" src="scripts/navmenu.js"></script>
+        <script type="text/javascript" src="scripts/notifica.js"></script>
+        <script type="text/javascript" src="scripts/locking_scroll.js" defer></script>
+        <script type="text/javascript" src="scripts/box_conferma.js" defer></script>
+        <script type="text/javascript" src="scripts/bouncing_text.js"></script>
+        <script type="text/javascript" src="scripts/richiesta.js" defer></script>
+        <script type="text/javascript" src="scripts/info_varie.js" defer></script>
+        
+        
+        <!-- sezione che riguarda il main e la sezione team -->
+        <script src="scripts/main.js" defer></script>
+        <script type="text/javascript" src="scripts/team/info_team.js"></script>
+        
+        
+        
+    
+    </body>
+</html>

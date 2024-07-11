@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+    <head>
+        <meta charset="UTF-8">
+        <title>[ProCol] Admin Dashboard</title>
+        <meta name="author" content="Luigi Puca">
+        <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
+        <link rel="icon" href="assets/favicon/favicon.ico" type="image/x-icon">
+        <!-- <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"> -->
+        <link rel="manifest" href="site.webmanifest">
+        <link rel="mask-icon" href="assets/favicon/safari-pinned-tab.svg" color="#5bbad5">
+        <meta name="msapplication-TileColor" content="#da532c">
+        <!-- Per definire un viewport della pagina e rendere la sua larghezza coincidente con quella del dispositivo -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <link rel="stylesheet" href="css/dash.css" type="text/css">
+        <link rel="stylesheet" href="css/dashboard_forms.css" type="text/css">
+        <link rel="stylesheet" href="css/custom_select.css" type="text/css">
+        <link rel="stylesheet" href="css/notification.css" type="text/css">
+        <link rel="stylesheet" href="css/popups.css" type="text/css">
+        <meta name="theme-color" content="rgb(21, 6, 39)">
+    </head>
+    <body>
+        <div class="notifica"></div>
+        <div class="view">
+            <div class="navmenu">
+                <div id='info'>
+                    <!-- <p id="messaggio"></p>
+                    <p id="isAdmin"></p>
+                    <p id="numero_utenti"></p> -->
+                    <p id="data-container"></p>
+                    <p id="pagination-controls"></p>
+                </div>
+                <div class="menu">
+                    <ul>
+                        <li class="--link" id="home"><p>Home</p></li>
+                        <li class="--link" id="dashboard"><p>Dashboard</p></li>
+                        <li class="--link" id="utentiSub"><p>Utenti Iscritti</p></li>
+                        <li class="--link" id="utentiOn"><p>Ultimi Accessi</p></li>
+                        <li class="--link" id="reportOpen"><p>Resoconto</p></li>
+                    </ul>
+                </div>
+                
+                <button class="navtoggle"></button>
+            </div>
+
+            <div class="navbar">
+                <div class="header">
+                    <h2 class="logo-procol">ProCol</h2>
+                    <div class="breadcumb">
+                        <h2 class="bc --bc-click">Dashboard</h2>
+                        <pre class="bc">  /  </pre>
+                        <h2 class="bc-din"></h2>
+                    </div>
+                </div>
+                <div class="navbar-utente">
+                    <button class="aggiorna" style="display: none">Aggiorna</button>
+                    <button class="popup--apri" style="display: none;">Accedi</button>
+                    <button class="logout">Esci</button>
+                </div>
+            </div>
+            <div class="main-wrapper">
+                <div class="main">
+
+                    <div class="overlay-window">
+                        <div class="overlay-inner">
+                            <p class="titolo-header"></p>
+                            <div class="overlay-content">
+                                <!-- <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequuntur tempore illo voluptatum sed nihil, veniam sequi architecto corporis amet ut, facere quis maxime aspernatur. Voluptas adipisci perferendis facilis numquam natus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Placeat perferendis suscipit quos voluptatem sit libero, nam, in perspiciatis quam delectus consequatur nihil omnis atque consectetur harum non voluptate ut architecto. Lorem ipsum dolor sit amet consectetur, adipisicing elit. Expedita officiis magni reprehenderit odit alias aspernatur dolorum qui tempore! Culpa, provident numquam magni recusandae sapiente est doloremque voluptatibus officia quo non! Lorem ipsum dolor, sit amet consectetur adipisicing elit. Saepe repudiandae nulla, vero harum architecto doloribus beatae doloremque pariatur cumque illum eos autem repellat veritatis obcaecati accusamus quod. Dignissimos, nihil dolorum? Lorem ipsum dolor sit amet, consectetur adipisicing elit. A corporis blanditiis nostrum? Est a aliquid perferendis necessitatibus quas distinctio voluptatem, obcaecati repellendus ipsam quis ex, modi possimus magni, aperiam perspiciatis. Lorem, ipsum dolor sit amet consectetur adipisicing elit. Earum assumenda, sequi ratione dolorem omnis animi autem quaerat consectetur esse minus, a in commodi odit eos aperiam perspiciatis rerum quis amet. Lorem ipsum dolor sit, amet consectetur adipisicing elit. Veniam itaque eos, ipsam non nihil eligendi aperiam! Velit, quasi. Porro voluptatem obcaecati libero quo eaque eligendi culpa, maxime cupiditate voluptatibus enim! Lorem ipsum dolor sit amet, consectetur adipisicing elit. At illum eligendi, amet assumenda ducimus sequi, illo quaerat deleniti tempora voluptate corrupti provident incidunt beatae nam? Velit dolore tempora hic odio? Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae, illum, rem tempore nisi nulla aliquid labore quo inventore perferendis temporibus libero atque molestiae quaerat laudantium sit repudiandae quod. Nihil, cum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus et eum hic iusto, ipsam voluptatum quos ea, expedita reprehenderit sapiente laboriosam vitae quasi quisquam, earum inventore facere ipsum totam. Odit. Lorem ipsum dolor sit amet consectetur, adipisicing elit. A perspiciatis similique totam exercitationem doloribus omnis non ab numquam accusantium illo aliquam possimus laboriosam ratione suscipit quod natus, dolores repellendus. Illum!</p> -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tile utenti-iscritti">
+                        <div class="first-group">
+                            <div class="box-img"></div>
+                            <div class="box-info">
+                                <p>Utenti Iscritti</p>
+                                <h5>120</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tile ultimi-accessi">
+                        <div class="first-group">
+                            <div class="box-img"></div>
+                            <div class="box-info">
+                                <p>Ultimi Accessi</p>
+                                <h5>1</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tile team">
+                        <div class="first-group">
+                            <div class="box-img"></div>
+                            <div class="box-info">
+                                <p>Team</p>
+                                <h5>20</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tile schede-create">
+                        <div class="first-group">
+                            <div class="box-img"></div>
+                            <div class="box-info">
+                                <p>Schede Attività</p>
+                                <h5>4020</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tile numero-commenti"><div id="nc"></div><p class="titolo-chart">Commenti della Settimana</p></div>
+                    <div class="tile schede-finite"><div id="sf"></div><p class="titolo-chart">Schede Completate</p></div>
+                    <div class="tile schede-ritardo"><div id="sr"></div><p class="titolo-chart">Schede In Ritardo</p></div>
+                    <div class="tile anteprima-progetti">
+                        <div id="ap">
+                            <div id="progetti-header"><p class="titolo-header">Progetti</p><h5 class="progetti-assegnati"></h5></div>
+                            <div class="creazione-progetto"><button class="crea-progetto">Crea Progetto</button></div>
+                            <div class="ul-container"><ul class="ul-inner">
+                            <!-- <li id="proj-${proj['id_progetto']}" colore="${colore}" nmp="${proj['nome']}" dep="${proj['descrizione']}" scp="${datetimeLocal}" stp="${proj['sigla_team']} tmp="${proj['team']}">
+                                <div class="nome-pot">${proj['nome']}</div>
+                                <div class="assegnato-pot">${proj['sigla_team']} | ${proj['team']}</a></div>
+                            <p>${proj['nome']} - ${proj['sigla_team']} | ${proj['team']}</p><div class="icon-tray"></div>
+                            </li>
+                                <li><p>first</p><div class="icon-tray">a</div></li>
+                                <li><p>a</p><div class="icon-tray"></div></li>
+                                <form id='--edit' method="post" action="services/dashboard_update.php">
+                                    <div class="nome-progetto">
+                                        <label for="nome-progetto"><h3 nome-progetto="">Nome sadsadssssssssaaaaassssssssssssssssssssssssssssssssssssssssssssssssssssa</h3></label>
+                                        <input type="text" name="nome_progetto" id="nome-progetto" disabled>
+                                        
+                                    </div>
+                                    <div class="descrizione-progetto">
+                                        <label for="descrizione-progetto"><h3 descrizione-progetto="">aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</h3></label>
+                                        <textarea name="descrizione_progetto" id="descrizione-progetto" placeholder="" disabled></textarea>
+                                        
+                                    </div>
+                                    <div class="scadenza-progetto">
+                                        <label for="scadenza-progetto">Scadenza</label>
+                                        <input type="datetime-local" step="any" id="scadenza-progetto" name="scadenza_progetto" value="2024-01-10T14:21:47" min="1970-01-01T00:00" valore="2024-01-10T14:21:47" disabled>
+                                    </div>
+                                    <div class="selezione-team custom-select">
+                                        <label for="selezione-team">Team Responsabile</label>
+                                        <button type="button" role="combobox" id="seleziona" class="--arrow-invisibile" value="Seleziona" valore="esempio" tabindex="0" aria-controls="listbox" aria-haspopup="listbox" aria-expanded="false" disabled>Seleziona</button>
+                                        <ul role="listbox" id="listbox">
+                                            <li role="option">opzione 1 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</li>
+                                            <li role="option">opzione 2</li>
+                                            <li role="option">opzione 3</li>
+                                            <li role="option">opzione 4</li>
+                                            <li role="option">opzione 5</li>
+                                            <li role="option">opzione 6</li>
+                                        </ul>
+                                        <input type="hidden" name="selezione_team" id="selezione-team" value="" disabled>
+                                    </div>
+                                    <button type="button" class="--abilita-modifica">Modifica</button>
+                                    <div class="--form-attivo --invisibile">
+                                        <button type="button" class="--disabilita-modifica">Annulla</button>
+                                        <div class="vertical-rule"></div>
+                                        <button type="button" class="--submit-form">Conferma</button>
+                                    </div>
+                                    <input type="submit" name="edit_progetto" style="display: none;" disabled>
+                                </form>
+                                <li><div class="nome-pot">Pulizie di Casa di casa Puca</div><div><a href="#">PUC | Ma che ne sanno i pasqualini di noi</a></div></li>
+                                <li><p>a</p><div class="icon-tray"></div></li>
+                                <li><p>a</p><div class="icon-tray"></div></li>
+                                <li><p>a</p><div class="icon-tray"></div></li>
+                                <li><p>a</p><div class="icon-tray"></div></li>
+                                <li><p>a</p><div class="icon-tray"></div></li>
+                                <li><p>a</p><div class="icon-tray"></div></li>
+                                <li><p>a</p><div class="icon-tray"></div></li>
+                                <li><p>a</p><div class="icon-tray"></div></li>
+                                <li><p>a</p><div class="icon-tray"></div></li>
+                                <li><p>a</p><div class="icon-tray"></div></li>
+                                <li><p>a</p><div class="icon-tray"></div></li>
+                                <li><p>a</p><div class="icon-tray"></div></li>
+                                <li><p>a</p><div class="icon-tray"></div></li>
+                                <li><p>last</p><div class="icon-tray"></div></li> -->
+                                <li style="display: none;"></li>
+                            </ul></div>
+                        </div>
+                    </div>
+                    <div class="tile anteprima-team">
+                        <div id="at">
+                            <div id="team-header"><p class="titolo-header">Team</p><h5 class="team-assegnati"></h5></div>
+                            <div class="creazione-team"><button class="crea-team">Crea Team</button></div>
+                            <div class="ul-container"><ul class="ul-inner">
+                                <li style="display: none;"></li>
+                            </ul></div>
+                        </div>
+                    </div>
+                    <div class="tile attivita-completate">
+                        <div id="ac">
+                            <div id="attivita-header"><p class="titolo-header">Attività Completate</p><h5 class="totale-completate"></h5></div>
+                            <div class="ul-container"><ul class="ul-inner2">
+                                <li style="display: none;"></li>
+                            </ul></div>
+                        </div>
+                    </div>
+                    <div class="tile attivita-ritardo">
+                        <div id="ar">
+                            <div id="attivita-header"><p class="titolo-header">Attività in Ritardo</p><h5 class="totale-completate"></h5></div>
+                            <div class="ul-container"><ul class="ul-inner2">
+                                <li style="display: none;"></li>
+                            </ul></div>
+                        </div>
+                    </div>
+                    <div class="tile report-azioni"><p>Visualizza Resoconto</p></div>
+                </div>
+            </div>
+        </div>
+        <script>
+            const btnApri = document.querySelector('.popup--apri');
+        </script>
+        <script type="text/javascript" src="scripts/notifica.js"></script>
+        <script src="scripts/locking_scroll.js" defer></script>
+        <script src="scripts/box_conferma.js" defer></script>
+        <script type="text/javascript" src="scripts/bouncing_text.js" defer></script>
+        <script type="text/javascript" src="scripts/richiesta.js" defer></script>
+        <script type="text/javascript" src="scripts/dashboard/navmenu.js" defer></script>
+        <script type="text/javascript" src="scripts/dashboard/crud.js" defer></script>
+        <script type="text/javascript" src="scripts/dashboard/form.js" defer></script>
+        <script type="text/javascript" src="scripts/dashboard/info.js" defer></script>
+        <script type="text/javascript" src="scripts/dashboard/grafico.js" defer></script>
+        <script type="text/javascript" src="scripts/dashboard/grafici_dash.js" defer></script>
+        <script type="text/javascript" src="scripts/dashboard/select_custom.js" defer></script>
+        <script type="text/javascript" src="scripts/dashboard/extra_info.js" defer></script>
+        <script type="text/javascript" src="scripts/dashboard/operazioni_utente.js" defer></script>
+    </body>
+</html>

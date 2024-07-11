@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+    <head>
+        <meta charset="UTF-8">
+        <title>[ProCol] Login</title>
+        <meta name="author" content="Luigi Puca">
+        <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
+        <link rel="icon" href="assets/favicon/favicon.ico" type="image/x-icon">
+        <!-- <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"> -->
+        <link rel="manifest" href="site.webmanifest">
+        <link rel="mask-icon" href="assets/favicon/safari-pinned-tab.svg" color="#5bbad5">
+        <meta name="msapplication-TileColor" content="#da532c">
+        <!-- Per definire un viewport della pagina e rendere la sua larghezza coincidente con quella del dispositivo -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <link rel="stylesheet" href="css/login.css" type="text/css">
+        <link rel="stylesheet" href="css/notification.css" type="text/css">
+        <meta name="theme-color" content="rgb(18, 0, 36)">
+    </head>
+    <body>
+        <div class="notifica">
+            <!-- <div class="box-notifica special-notifica">
+                <div class="contenuto-notifica"><p>A: fghfghfgh</p></div>
+                <button class="ignora-notifica">&times;</button>
+            </div>
+            <div class="box-notifica successo-notifica">
+                <div class="contenuto-notifica"><p>${2 opzioni.messaggioNotificaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}</p></div>
+                <button class="ignora-notifica">&times;</button>
+            </div> -->
+        </div>
+        <div class="--errore-dimensione --no" style="display: none;">Ruotare il dispositivo o ridimensionare la finestra</div>
+        <div class="header-login">
+            <h2 class="logo-login">ProCol</h2>
+            <div class="navbar-login">
+                <a href="home.html">Home</a>
+                <a href="Specifica%20Requisiti%20-%20Progetti%20Collaborativi.pdf" target="_blank">Documentazione</a>
+                <a href="mailto:luigi.puca3@studenti.unicampania.it?subject=%5BProCol%5D%20%2D%20Inserire%20qui%20l'%20Oggetto&body=Inserire%20qui%20una%20descrizione" target="_blank">Contattaci</a>
+                <button class="popup--apri">Accedi</button>
+                <button class="logout">Esci</button>
+            </div>   
+        </div>
+
+        <div class="box-login">
+            <span class="popup--chiudi"><ion-icon name="close"></ion-icon></span>
+            <div class="form-login --login">
+                <h2>Accesso</h2>
+                <form method="post" action="services/login.php">
+                    <div class="input-login">
+                        <span class="icon"><ion-icon name="mail"></ion-icon></span>
+                        <input type="email" name="email" minlength="1" maxlength="255" required>
+                        <label>Email</label>
+                    </div>
+                    <div class="input-login">
+                        <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
+                        <input type="password" name="password" minlength="8" maxlength="32" required>
+                        <label>Password</label>
+                    </div>
+                    <div class="opzioni-login">
+                        <label><input type="checkbox" name="checkRicorda" optional>Ricordami</label>
+                        <a href="#">Password Dimenticata?</a>
+                    </div>
+                    <button type="button" class="--accedi btn--login">Accedi</button>
+                    <input type="hidden" style="position:absolute; visibility: hidden;" name="accesso" value="true" class="btn--login">
+                    <div class="switch">
+                        <p>Non hai un account? <a href="#" class="scheda--registrazione">Registrati</a></p>
+                    </div>
+                </form>
+            </div>
+
+            <div class="form-login --registrazione">
+                <h2>Registrazione</h2>
+                <form method="post" action="services/register.php">
+                    <div class="anagrafica-login">
+                        <div class="input-login">
+                            <span class="icon"><ion-icon name="person"></ion-icon></span>
+                            <input type="text" name="nome" minlength="1" maxlength="50" required>
+                            <label>Nome</label>
+                        </div>
+                        <div class="input-login">
+                            <span class="icon"><ion-icon name="person"></ion-icon></span>
+                            <input type="text" name="cognome" minlength="1" maxlength="50" required>
+                            <label>Cognome</label>
+                        </div>
+                    </div>
+                    
+                    <div class="genere-login">
+                        <p>Genere</p>
+                        <div class="scelta">
+                            <input type="radio" name="genere" id="maschile" value="maschio">
+                            <label for="maschile">Maschio</label>
+                            <input type="radio" name="genere" id="femminile" value="femmina">
+                            <label for="maschile">Femmina</label>
+                        </div>
+                    </div>
+                    <div class="input-login">
+                        <span class="icon"><ion-icon name="mail"></ion-icon></span>
+                        <input type="email" name="email" minlength="1" maxlength="255" required>
+                        <label>Email</label>
+                    </div>
+                    <div class="input-login">
+                        <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
+                        <input type="password" name="password" required>
+                        <label>Password</label>
+                    </div>
+                    <div class="opzioni-login">
+                        <label><input type="checkbox" name="checkTC" value="1" required>Acconsento a Termini e Condizioni</label>
+                    </div>
+                    <button type="button" class="--registrati btn--login">Registrati</button>
+                    <input type="hidden" style="position:absolute; visibility: hidden; " name="registrazione" value='true' class="btn--login">
+                    <div class="switch">
+                        <p>Hai già un account? <a href="#" class="scheda--accesso">Accedi</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="footer-login">
+            <div class="navbar-login">
+                <a href="#">Home</a>
+                <a href="Specifica%20Requisiti%20-%20Progetti%20Collaborativi.pdf" target="_blank">Documentazione</a>
+                <a href="mailto:luigi.puca3@studenti.unicampania.it?subject=%5BProCol%5D%20%2D%20Inserire%20qui%20l'%20Oggetto&body=Inserire%20qui%20una%20descrizione" target="_blank">Contattaci</a>
+            </div>   
+        </div>
+        
+        <script type="text/javascript" src="scripts/login/login.js"></script>
+        <script type="text/javascript" src="scripts/notifica.js" defer></script>
+        <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+        <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+        <script type="text/javascript" src="scripts/richiesta.js" defer></script>
+        <script type="text/javascript" src="scripts/login/login_onload.js" defer></script>
+        <script type="text/javascript" src="scripts/login/send_form.js" defer></script>
+    </body>
+</html>
+

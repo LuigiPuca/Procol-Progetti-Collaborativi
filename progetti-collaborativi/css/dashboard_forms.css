@@ -1,0 +1,247 @@
+#progetti-header, #team-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.ul-inner form {
+    display: flex;
+    width: calc(100%);
+    min-height: calc(100%-40px);
+    height: auto;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.ul-inner form button {
+    outline: none;
+    border: none;
+}
+
+.ul-inner form label, .ul-inner .--conferma-form {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1em;
+    font-weight: 600; 
+    text-align: center;
+}
+
+.nome-progetto, .descrizione-progetto, .sigla-team, .nome-team {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    z-index: 99 !important;
+}
+
+.scadenza-progetto, .selezione-team, .selezione-responsabile {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 2px inset rgb(134, 154, 211);
+    border-bottom-left-radius: 0.45em;
+    border-bottom-right-radius: 0.45em;
+}
+
+.scadenza-progetto:has(input[type="datetime-local"]:focus), .selezione-team:has([aria-expanded="true"]), .selezione-responsabile:has([aria-expanded="true"]) {
+    border-bottom: 2px inset rgba(233, 4, 111, 0.3);
+    box-shadow: inset 0px 25.6px 57.6px rgba(0, 0, 0, 0.466), inset 0px 0px 10.2px rgba(233, 4, 111, 0.3);
+}
+
+.nome-progetto, .sigla-team, .nome-team {
+    height: 40px;
+}
+
+.descrizione-progetto {
+    height: 60px;
+}
+
+.scadenza-progetto input{
+    border: none;
+    outline: none;
+    width: 82.5%;
+    background-color: transparent;
+}
+
+.nome-progetto label, .descrizione-progetto label, .sigla-team label, .nome-team label {
+    position: absolute;
+    display: flex;
+    overflow: hidden;
+    width: 66%;
+    align-items: center;
+    justify-content: center;
+}
+
+.nome-progetto label, .sigla-team label, .nome-team label {
+    height: 30px;
+}
+
+.descrizione-progetto label {
+    height: 50px;
+}
+
+[nome-progetto], [descrizione-progetto], [sigla-team], [nome-team] {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    z-index: 50;
+}
+
+[nome-progetto], [sigla-team], [nome-team] {
+    height: 30px;
+    line-height: 30px;
+    overflow: hidden;
+    white-space: nowrap; /* Utilizzo solo questa dichiarazione per non fare andare a capo*/
+    overflow-wrap: break-word;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+[descrizione-progetto] {
+    height: 50px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overflow-wrap: break-word;
+    text-align: left;
+}
+
+[nome-progetto]:hover, [sigla-team]:hover, [nome-team]:hover {
+    overflow: visible;
+    animation: var(--bounceX);
+}
+
+[descrizione-progetto]:hover {
+    overflow-y: auto;
+}
+
+@keyframes ---bounceX {
+    0% {
+        transform: translateX(0%);
+    }
+    100% {
+        transform: translateX(var(--tlx));
+    }
+}
+
+@keyframes ---bounceX2 {
+    0% {
+        transform: translateX(var(--tlx));
+    }
+    100% {
+        transform: translateX(0%);
+    }
+}
+
+input[type="text"]:not([inputMode]), textarea {
+    padding: 0 calc(9.6% - 10px);
+    display: block;
+    position: relative;
+    width: 80%;
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    border-bottom: 2px inset rgb(134, 154, 211);
+    border-bottom-left-radius: 0.45em;
+    border-bottom-right-radius: 0.45em;
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+    background-color: #3f215e41;
+    background-color: transparent;
+    box-shadow: 0px 25.6px 57.6px inset rgb(0 0 0 / 14%), 0px 0px 16.4px rgb(0 0 0 / 12%);
+    font-size: 1em;
+    font-weight: 600; 
+    resize: none;
+    cursor: pointer;
+}
+
+input[type="text"]:not([inputMode]) {
+    height: 40px;
+    text-align: center;
+}
+
+textarea {
+    display: flex;
+    height: 60px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 calc(9.6% - 10px);
+}
+
+input[type="datetime-local"] {
+    caret-color: rgba(109, 65, 161, 0.9);
+    padding: 0 calc(9.6% - 10px);
+    text-align: center;
+    cursor: pointer;
+}
+
+input[type="text"]:not([inputMode]):focus, textarea:focus {
+    caret-color: rgba(109, 65, 161, 0.9);
+    outline: none;
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    border-bottom: 2px inset rgba(233, 4, 111, 0.3);
+    box-shadow: inset 0px 25.6px 57.6px rgba(0, 0, 0, 0.466), inset 0px 0px 10.2px rgba(233, 4, 111, 0.3);
+}
+
+.--form-attivo, .--form-disattivo, .--form-creazione {
+    display: flex;
+    direction: row;
+    width: 80%;
+    height: 40px;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    overflow: hidden;
+    font-weight: 900;
+}
+
+.vertical-rule {
+    width: 2px; 
+    height: 100%; 
+    background-color: rgb(134, 154, 211); 
+}
+
+.--invisibile {
+    display: none;
+}
+
+.--arrow-invisibile::before {
+    visibility: hidden;
+}
+
+.--disabilita-modifica, .--submit-form, .--abilita-modifica, .--elimina-tupla, .--esci-creazione, .--conferma-creazione {
+    flex: 1;
+    outline: none;
+    border: none;
+    font-weight: 900;
+    width: 50%;
+    height: 37px;
+    cursor: pointer;
+    background-color: transparent;
+    transition: .5s ease-out;
+    transform-origin: center center;
+}
+
+.--disabilita-modifica:hover, .--elimina-tupla:hover, .--esci-creazione:hover {
+    color: rgb(255, 0, 0);
+}
+
+.--submit-form:hover, .--abilita-modifica:hover, .--conferma-creazione:hover {
+    color: rgb(101, 60, 149);
+}
+
+.--disabilita-modifica:active, .--elimina-tupla:active, .--esci-creazione:active {
+    color: rgb(255, 0, 0);
+    transform: scale(1.1, 1.1);
+}
+
+.--submit-form:active, .--abilita-modifica:active, .--conferma-creazione:active {
+    color: rgb(101, 60, 149);
+    transform: scale(1.1, 1.1);
+}

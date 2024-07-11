@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="it-IT">
+    <head>
+        <meta charset="UTF-8">
+        <title>[ProCol] Errore</title>
+        <meta name="author" content="Luigi Puca">
+        <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
+        <link rel="icon" href="assets/favicon/favicon.ico" type="image/x-icon">
+        <!-- <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"> -->
+        <link rel="manifest" href="site.webmanifest">
+        <link rel="mask-icon" href="assets/favicon/safari-pinned-tab.svg" color="#5bbad5">
+        <meta name="msapplication-TileColor" content="#da532c">
+        <!-- Per definire un viewport della pagina e rendere la sua larghezza coincidente con quella del dispositivo -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <link rel="stylesheet" href="css/errore.css" type="text/css">
+        <meta name="theme-color" content="rgb(18, 0, 36)">
+    </head>
+    <body>
+        
+        <div id="--errore">
+            
+        </div>
+        <script>
+            function catturaMessaggioDa(parametroQS, url) {
+                //se non viene specificato nessun url si usa quello della finestra corrente
+                if (!url) url = window.location.href;
+                // verifico se il messaggio contiene parentesi quadre e in caso le elimino 
+                parametroQS = parametroQS.replace(/[\[\]]/g, '\\$&');
+                // creo una nuova espressione regolare in cui verifico ció che inizia con ? oppure &
+                // a ció si aggiunge il valore opzionale della query string valoreQS, preceduto da un uguale e il parametro della query string parametroQS. 
+                var regex = new RegExp('[?&]' + parametroQS + '(=([^&#]*)|&|#|$)');
+                // vediamo se troviamo una corrispondenza 
+                var valoreQS = regex.exec(url);
+                if (!valoreQS) return ''; //verifico se non é presente il gruppo di cattura 
+                if (!valoreQS[2]) return ''; //verifico se non presente il valore effettivo di un parametro
+                // se é stata trovata invece corrispondenza decodico il componente URI e faccio opportune sostituzioni
+                return decodeURIComponent(valoreQS[2].replace(/\+/g, ' '));
+            }
+
+            // Recupero il messaggio di errore ottenuto dal valore della query string dell'URL
+            var erroreMessaggioEncoded = catturaMessaggioDa('msg');
+
+            // Faccio un ultima decodifica da base64 (ASCII) a binario
+            var erroreMessaggio = atob(erroreMessaggioEncoded);
+
+            // Per visualizzare il messaggio di errore in una finestra di avviso preimpostata nella pagina
+            if (erroreMessaggio) {
+                document.getElementById('--errore').innerHTML = `<p>${erroreMessaggio}</p>`;
+            } else {
+                document.getElementById('--errore').innerHTML = '<p>Si é verificato un errore sconosciuto.</p>';
+            }
+        </script>
+    </body>
+</html>

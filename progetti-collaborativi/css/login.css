@@ -1,0 +1,512 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+a, a *, button, button *, img, h1, h2, h3, h4, h5, h6, label {
+    /* Blocco la selezione sui vari browser*/
+    -webkit-user-select: none; 
+    -moz-user-select: none; 
+    -ms-user-select: none;
+    user-select: none; 
+    -webkit-touch-callout: none; /* Blocco menu contestuale su Safari */     
+    -webkit-user-drag: none; /* Disabilito il drag su Safari */
+    -moz-user-drag: none; /* Disabilito il drag su altri browser */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif	;
+    color: rgb(18, 0, 36);
+}
+
+body {
+    background-color: #ac73d6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    vertical-align: baseline;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    background-image: url(../assets/landscape-home.webp);
+    background-size: cover;
+    background-position: center;
+    padding: 10px;
+}
+
+body, html {
+    overflow: hidden !important;
+    scrollbar-gutter: none;
+}
+
+@media only screen and ((max-width: 358px) or (max-height: 565px)) {
+
+    .--errore-dimensione {
+        display: flex !important;
+        height: 95dvh;
+        width: 100dvw;
+        background-color: rgba(173, 115, 214, 0.15);
+        -webkit-backdrop-filter: blur(25px);
+        backdrop-filter: blur(25px);
+        font-weight: 700;
+        justify-content: center;
+        text-align: center;
+        align-items: center;
+        border-radius: 20px;
+        opacity: 0;
+        transform: scale(0.50);
+        animation-name: errore---apri;
+        animation-duration: 0.6s;
+        animation-fill-mode: forwards;
+        animation-delay: 0.2s;
+        animation-timing-function: ease;
+    }
+
+    @keyframes errore---apri {
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .box-login, .header-login, .footer-login {
+        display: none !important;
+    }
+
+    .box-login.--iOSBrave {
+        display: flex !important;
+    }
+}
+
+.--barra-chiusa {
+    display: none !important;
+}
+
+/* il seguente stile mi serve per evitare un bug che si verifica a causa di alcuni autofill per cellulare */
+.box-login.--errore-autofill .--login {
+    display: none !important;
+}
+
+.header-login {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-login {
+    font-size: 2em;
+    user-select: none;
+    color: rgb(18, 0, 36);
+}
+
+.navbar-login {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+.footer-login {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header-login .navbar-login a{
+    display: none;
+    position: relative;
+    font-size: 1.1em;
+    text-decoration: none;
+    font-weight: 500;
+    margin-left: 40px;
+    color: rgb(18, 0, 36);
+}
+
+.footer-login .navbar-login a{
+    display: inline-block;
+    position: relative;
+    font-size: 1em;
+    text-decoration: none;
+    font-weight: 500;
+    margin-left: 20px;
+    color: #ac73d6;
+}
+
+.navbar-login a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    width: 100%;
+    height: 3px;
+    background: transparent;
+    border-radius: 5px;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.5s ease;
+}
+
+.navbar-login a:hover::after {
+    transform-origin: left;
+    transform: scaleX(1);
+    background: rgb(18, 0, 36);
+}
+
+@media only screen and (min-width: 780px) {
+    .header-login .navbar-login a{
+        display: inline-block;
+    }
+
+    .footer-login .navbar-login a{
+        display: none;
+    }
+}
+
+.--popup-attivo, .header-login, .footer-login {
+    opacity: 0;
+    transform: scale(0);
+    animation-name: errore---chiudi;
+    animation-duration: 0.6s;
+    animation-fill-mode: forwards;
+    animation-delay: 0.2s;
+    animation-timing-function: ease;
+}
+
+@keyframes errore---chiudi {
+    to {
+        opacity: 1;
+        transform: scale(1);    
+    }
+}
+
+/* mostro il bottone di accesso quando l'utente non é connesso (--uc) */
+.popup--apri:not(.--uc) {
+    width: 130px;
+    height: 50px;
+    background: rgba(173, 115, 214, 0.15);
+    -webkit-backdrop-filter: blur(1px);
+    backdrop-filter: blur(1px);
+    box-shadow: inset 0 0 5px rgba(0, 13, 43, 0.505);
+    border: 2px solid rgb(18, 0, 36);
+    outline: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1em;
+    color: rgb(18, 0, 36);
+    font-weight: 500;
+    margin-left: 40px;
+    transition: 0.5s ease;
+}
+
+.popup--apri:not(.--uc):hover, .popup--apri.--disabilitato {
+    background-color: rgb(18, 0, 36) !important;
+    color: #ffffff;
+}
+
+/* mostro il bottone di accesso quando l'utente non é connesso (--uc) */
+.logout.--uc {
+    display: inline-block !important;
+    width: 130px;
+    height: 50px;
+    background: rgba(173, 115, 214, 0.15);
+    -webkit-backdrop-filter: blur(1px);
+    backdrop-filter: blur(1px);
+    box-shadow: inset 0 0 5px rgba(255, 0, 0, 0.505);
+    border: 2px solid rgb(18, 0, 36);
+    outline: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1em;
+    color: rgb(18, 0, 36);
+    font-weight: 500;
+    margin-left: 40px;
+    transition: 0.5s ease;
+}
+
+.logout.--uc:hover {
+    box-shadow: inset 0 0 5px rgb(255, 0, 0), inset 0 0 50px 50px rgb(18, 0, 36);
+    color: #ffffff;
+}
+
+.btn--login:active, .popup--apri:not(.--uc):not(.--disabilitato):active, .logout.--uc:active{
+    transform-origin: center;
+    transform: scale(0.95);
+    transition: transform 0.2s;
+}
+
+/* nascondo il bottone di accesso e mostro quello di disconnessione quando l'utente é connesso (--uc)*/
+.popup--apri.--uc {
+    display: none !important;
+    background-color: red;
+}
+
+.logout:not(.--uc) {
+    display: none !important;
+}
+
+/* nascondo il bottone di disconnessione quando l'utente non é connesso */
+
+.popup--chiudi:active {
+    transform-origin: top right;
+    transform: scale(0.95);
+    transition: transform 0.2s;
+}
+
+/* impedisco che il box-login possa apparire quando l'utente é connesso */
+
+.box-login.--uc {
+    display: none !important;
+}
+
+.box-login {
+    position: relative;
+    width: 400px;
+    height: 440px;
+    /* max-height: 600px; */
+    border: 1px solid rgb(18, 0, 36);
+    border-radius: 20px;
+    background-color: rgba(173, 115, 214, 0.15);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    box-shadow: inset 0 0 30px rgb(0, 13, 43);
+    /* accentriamo tutti gli elementi */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* nascondiamo tutto quello che esce dai bordi */
+    overflow: hidden;
+    transform: scale(0);
+    transition: transform 0.5s ease, height 0.2s ease;
+    overflow: hidden;
+}
+
+.box-login.--attivo {
+    height: 555px;
+}
+
+.form-login {
+    width: 100%;
+    padding: 40px;
+}
+
+/* Gestisco l'animazione della pagina di login */
+.box-login .--login {
+    transition: transform 0.2s ease;
+    transform: translateX(0);
+}
+
+.box-login.--attivo .--login {
+    transition: none;
+    transform: translateX(-400px);
+}
+
+/* Gestisco l'animazione della pagina di registrazione */
+.box-login .--registrazione {
+    position: absolute;
+    transition: none;
+    transform: translateX(400px);
+}
+
+.box-login.--attivo .--registrazione {
+    transition: transform 0.2s ease;
+    transform: translateX(0);
+}
+
+.popup--chiudi {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 45px;
+    height: 45px;
+    background-color: rgb(18, 0, 36);
+    border-bottom-left-radius: 20px;
+    font-size: 2em;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.--registrazione {
+    position: absolute;
+    transform: translateX(400px);
+}
+
+.form-login h2 {
+    font-size: 2em;
+    color: rgb(18, 0, 36);
+    text-align: center;
+}
+
+.input-login {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    border-bottom: 2px solid rgb(18, 0, 36);
+    margin: 30px 0;
+}
+
+.anagrafica-login {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.anagrafica-login .input-login {
+    width: 50%;
+}
+
+.input-login label {
+    position: absolute;
+    top: 50%;
+    left: 5px;
+    transform: translateY(-50%);
+    font-size: 1em;
+    font-weight: 500;
+    color: rgb(18, 0, 36);
+    pointer-events: none;
+    transition: 0.5s ease;
+}
+
+.input-login input:focus~label, input.--non-vuoto~label {
+    top: -5px;
+}
+
+.input-login input {
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    padding: 0 35px 0 10px;
+    color: rgb(18, 0, 36);
+    font-weight: 600;
+}
+
+.input-login input:-webkit-autofill {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: rgb(18, 0, 36);
+    transition: background-color 5000s ease-in-out 0s;
+    -webkit-box-shadow: inset 0 0 20px 20px #23232329;
+}
+
+
+.input-login .icon {
+    position: absolute;
+    right: 10px;
+    font-size: 1.2em;
+    color: #ffffff;
+    line-height: 53px;
+}
+
+.genere-login {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    width: 100%;
+    height: 30px;
+    border-bottom: 2px solid rgb(18, 0, 36);
+    padding: 0 10px 0 5px;
+}
+
+.genere-login p {
+    display: inline-block;
+    font-size: 1em;
+    font-weight: 500;
+}
+
+.genere-login label {
+    display: inline-block;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+#maschile, #femminile {
+    accent-color: rgb(18, 0, 36);
+    margin-left: 10px;
+}
+
+.opzioni-login {
+    font-size: 0.9em;
+    color:rgb(18, 0, 36);
+    font-weight: 500;
+    margin: -15px 0 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.opzioni-login label input {
+    accent-color: rgb(18, 0, 36);
+    margin-right: 3px;
+}
+
+.opzioni-login a {
+    color:rgb(18, 0, 36);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.opzioni-login a:hover {
+    text-decoration: underline;
+}
+
+.btn--login {
+    width: 100%;
+    height: 40px;
+    background-color: rgb(18, 0, 36);
+    color: #ffffff;
+    font-size: 0.9em;
+    font-weight: 500;
+    border: none;
+    outline: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.switch {
+    font-size: 0.9em;
+    color:rgb(18, 0, 36);
+    display: flex;
+    margin: 10px 0 10px 5px;
+    text-align: center;
+    font-weight: 500;
+}
+
+
+.switch p a {
+    color:rgb(18, 0, 36);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.switch p a:hover {
+    text-decoration: underline;
+}
+
+.popup--chiudi * {
+    color: #ffffff;
+}
+
+/* per evitare zoom esagerati sul focus su ios  */
+@supports (-webkit-overflow-scrolling: touch) {
+    body, html {
+        overscroll-behavior: none;
+    }
+}
+
+/* per evitare glitch al cambio finestra tra login e registrazione */
+.scheda--registrazione.disabled, .scheda--accesso.disabled {
+    pointer-events: none; 
+}
+
