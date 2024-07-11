@@ -1,0 +1,906 @@
+# ho creato una tabella Utenti, la cui chiave primaria é
+# un UUID (cioé Universal Unique Identifier), che ho 
+# convertito in binario per questioni di gestione in
+# memoria. Infatti un UUID é grande essendo una stringa
+# di 36 caratteri esadecimali. 
+# Questo UUID binario é stato ottenuto creando un trigger 
+# che agisce prima dell'inserimento di un record nella 
+# tabella. Al trigger viene assegnato il valore generato
+# dalla funzione UUID() alla variabile di sessione @uuid.
+# Da questa variabile di sessione vado ad ottenere le 
+# sezioni del mio UUID (tra cui il timestamp) attraverso 
+# delle sottostringhe che vado poi a concatenare in un
+# ordine diverso che mi permette di avere UUID sequenziali
+# che mi allegerisce il compito del mio motore di
+# archiviazione (in questo caso InnoDB) nel mantenere in 
+# Per tutte le altre tabelle ordino quando necessario le 
+# chiavi in ordine alfabetico e in maniera insensibile al 
+# caso (utf8_general_ci). 
+# Non salviamo la password originale di ogni utente, ma il 
+# suo hash
+
+
+
+DROP TABLE IF EXISTS Utenti;
+
+CREATE TABLE utenti (
+    uuid BINARY(16) NOT NULL,
+    nome VARCHAR(50) NOT NULL,
+    cognome VARCHAR(50) NOT NULL,
+    genere ENUM('maschio','femmina') NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    ruolo ENUM('admin', 'capo_team', 'utente') NOT NULL DEFAULT 'utente',
+    data_creazione DATETIME DEFAULT CURRENT_TIMESTAMP(),
+    PRIMARY KEY (uuid),
+    CONSTRAINT `valida_email` CHECK (email REGEXP '^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*\.[a-zA-Z]{2,4}')
+) 
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_general_ci
+ENGINE=InnoDB;
+
+DELIMITER //
+CREATE TRIGGER anticipo_inserimento
+BEFORE INSERT ON Utenti
+FOR EACH ROW
+BEGIN
+	SET @uuid = UUID();
+	SET NEW.uuid = UNHEX(CONCAT(
+		SUBSTR(@uuid, 15, 4),
+		SUBSTR(@uuid, 10, 4),
+		SUBSTR(@uuid, 1, 8),
+		SUBSTR(@uuid, 20, 4),
+		SUBSTR(@uuid, 25))
+	);
+END; //
+DELIMITER ;
+
+
+# Ho sbagliato come ho creato la regexp del constraint 
+# "valida_email". Quindi l'ho modificato e ho creato 
+# altri constraint che rispecchiano quelli php già creati
+# nel file register.php. L'eccezione sarà la password in
+# quanto ci arriva hashata e possiamo presumere che prima
+# dell'hash non essendo minore di 8 tantomeno non puó 
+# esserlo dopo l'hashing, quindi ci limiteremo ad un 
+# controllo di lunghezza
+
+
+ALTER TABLE utenti 
+    DROP CONSTRAINT `valida_email`;
+    ADD CONSTRAINT `valida_nome` CHECK (nome REGEXP '^[a-zA-ZÀ-ÿ](?:[a-zA-ZÀ-ÿ\'\\s]{0,48}[a-zA-ZÀ-ÿ])?$'),
+    ADD CONSTRAINT `valida_cognome` CHECK (cognome REGEXP '^[a-zA-ZÀ-ÿ](?:[a-zA-ZÀ-ÿ\'\\s]{0,48}[a-zA-ZÀ-ÿ])?$'),
+    ADD CONSTRAINT `valida_genere` CHECK (genere = 'maschio' OR genere = 'femmina'),
+    ADD CONSTRAINT `valida_email` CHECK (`email` regexp '^[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*.[a-zA-Z]{2,4}$'),
+    ADD CONSTRAINT `valida_password` CHECK (LENGTH(`password`) >= 8);
+
+ALTER TABLE utenti
+
+# Decido di aggiungere altre due colonne, ossia ultimo
+# accesso e team (in sigla).
+
+ALTER TABLE utenti
+    ADD COLUMN team VARCHAR(3) DEFAULT NULL,
+    ADD COLUMN ultimo_accesso DATETIME DEFAULT NULL; 
+
+#In php abbiamo aggiunto intanto le seguenti query per
+
+# 1. Verificare l'esistenza di un utente durante la 
+# registrazione
+
+prepare("SELECT uuid FROM utenti WHERE email = ?");
+
+# 2. Registrare l'utente aggiungedo una tupla con 
+# i suoi dati 
+
+prepare("INSERT INTO utenti (nome, cognome, genere, email, password) VALUES (?, ?, ?, ?, ?)");
+
+# 3. Accedere con l'utente verificando che esista
+prepare("SELECT HEX(`uuid`), nome, cognome, genere, `password`, ruolo FROM utenti WHERE email = ?");
+
+# 4. Memorizzare l'ultimo accesso 
+prepare("UPDATE utenti SET ultimo_accesso = NOW() WHERE email = ?");
+
+# Mettiamo in sospeso un attimo la questione utenti
+# e decidiamo di creare una tabella team in cui avremo
+# come chiave primaria la `sigla` del nome del team,
+# e altre colonne come il `nome` del team, il 
+# `capo_team` e il `numero_progetti`.
+# - La sigla deve essere di massimo 3 caratteri tutti 
+# alfanumerici, e insensibile al case cioé nella 
+# stessa colonna non posso trovare sia abc che ABC
+# - Il nome deve essere unico e di massimo 20 caratteri, 
+# solo lettere tra cui anche le accentate, e spazi. 
+# - Ogni team avrá necessariamente e non piú di un
+# responsabile (unique), che sarà identificato dall'email
+# che trovo nella tabella utenti, purchè questo sia di 
+# ruolo capo_team (posso verificare ció sempre nella 
+# tabella utenti).
+# - Il suo team potrà occuparsi di un certo numero di 
+# progetti che puó essere 0 o piú (not null default 0) 
+# e otterremo questo valore in seguito con un count 
+
+CREATE TABLE team (
+    sigla VARCHAR(3) COLLATE utf8mb4_general_ci NOT NULL,
+    nome VARCHAR(20) COLLATE utf8mb4_unicode_ci UNIQUE NOT NULL,
+    responsabile VARCHAR(255) COLLATE utf8mb4_general_ci UNIQUE NOT NULL,
+    numero_progetti INT UNSIGNED DEFAULT 0,
+    PRIMARY KEY (sigla),
+    FOREIGN KEY (responsabile) REFERENCES utenti(email) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    CONSTRAINT `valida_sigla` CHECK (sigla REGEXP '^[a-zA-Z0-9]{1,3}$'),
+    CONSTRAINT `valida_nome_team` CHECK (nome REGEXP '^[a-zA-ZÀ-ÿ](?:[a-zA-ZÀ-ÿ\'\\s]{0,18}[a-zA-ZÀ-ÿ])?$')
+);
+
+DELIMITER //
+CREATE TRIGGER anticipo_assegna_team
+BEFORE INSERT ON team
+FOR EACH ROW
+BEGIN
+    DECLARE capo_count INT;
+    SET capo_count = (SELECT COUNT(*) FROM utenti WHERE email = NEW.responsabile AND (ruolo = 'capo_team' OR ruolo='admin'));
+    IF capo_count = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'L\'utente specificato non esiste o non puó essere capo del team.';
+    END IF;
+END//
+DELIMITER ;
+
+# Abbiamo fatto in modo che un record della tabella utenti 
+# non puó essere cancellato o modificato se la mail di uno 
+# degli utenti é responsabile di un team. Inoltre attraverso 
+# un trigger definiamo che puó essere ritenuto responsabile
+# di un team solo un admin o un capo_team.
+
+# Ora vogliamo aggiornare automaticamente il campo 'team' nella
+# tabella `utenti` con la sigla del team di cui l'utente è 
+# responsabile. Facciamo tutto ciò con un trigger che si attiva
+# solo dopo che un nuovo record é stato inserito nella tabella
+# team. Quindi si verifica che il responsabile del team esista 
+# e abbia il ruolo di 'capo_team' o 'admin', e in caso positivo
+# si aggiorna utenti.team con la sigla del nuovo team associato
+
+DELIMITER //
+CREATE TRIGGER associo_a_team
+AFTER INSERT ON team
+FOR EACH ROW
+BEGIN
+    IF EXISTS (SELECT 1 FROM utenti WHERE email = NEW.responsabile AND (ruolo = 'capo_team' OR ruolo = 'admin')) THEN
+        UPDATE utenti SET team = NEW.sigla WHERE email = NEW.responsabile;
+    END IF;
+END//
+DELIMITER ;
+
+# Ma ciò vale solo per INSERT, lo vogliamo anche per UPDATE
+
+DELIMITER //
+CREATE TRIGGER associo_a_team_posticipo_update
+AFTER UPDATE ON team
+FOR EACH ROW
+BEGIN
+    IF EXISTS (SELECT 1 FROM utenti WHERE email = NEW.responsabile AND (ruolo = 'capo_team' OR ruolo = 'admin')) THEN
+        UPDATE utenti SET team = NEW.sigla WHERE email = NEW.responsabile;
+    END IF;
+END//
+DELIMITER ;
+
+# Vogliamo anche fare dei controlli prima sia di INSERT e 
+# UPDATE, in cui ci assicuriamo che l'utente, selezionato
+# come responsabile, abbia un ruolo valido e non appartenga
+# a nessun team, o che appartenga al piú al team a cui ci 
+# stiamo riferendo. 
+
+DELIMITER //
+
+CREATE TRIGGER blocca_aggiornamento_team
+BEFORE UPDATE ON team
+FOR EACH ROW
+BEGIN
+    DECLARE count_utenti_validi INT;
+    SELECT COUNT(*) INTO count_utenti_validi FROM utenti WHERE email = NEW.responsabile AND ruolo IN ('capo_team', 'admin') AND (team IS NULL OR team = NEW.sigla);
+    IF count_utenti_validi = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Errore aggiornamento: l’utente potrebbe non esistere, avere un ruolo incompatibile o appartenere già ad un team';
+    END IF;
+END;
+//
+
+CREATE TRIGGER blocca_inserimento_team
+BEFORE INSERT ON team
+FOR EACH ROW
+BEGIN
+    DECLARE count_utenti_validi INT;
+    SELECT COUNT(*) INTO count_utenti_validi FROM utenti WHERE email = NEW.responsabile AND ruolo IN ('capo_team', 'admin') AND (team IS NULL OR team = NEW.sigla);
+    IF count_utenti_validi = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Errore inserimento: l’utente potrebbe non esistere, avere un ruolo incompatibile o appartenere già ad un team';
+    END IF;
+END;
+//
+
+DELIMITER ;
+
+
+# Vogliamo anche imporre un vincolo in cui un utente puó 
+# essere assegnato ad un team solo se la sua sigla esiste
+# in team.sigla. Rendo quindi utenti.team una chiave esterna
+# che si riferisce a team.sigla, e faccio le opportune 
+# restrizioni
+
+ALTER TABLE utenti
+ADD CONSTRAINT `valido_appartenenza` FOREIGN KEY (team) REFERENCES team(sigla) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+# Tuttavia sembra che questa soluzione non funzioni, in quanto
+# non c'è una corrispondenza dei tipi delle due colonne.
+# Non potendo quindi rendere utenti.team una chiave esterna
+# optiamo dunque per un trigger di tipo BEFORE INSERT. 
+# Verifichiamo quindi prima che se utenti.team non abbiamo un 
+# valore nullo, allora la sigla del team esiste nella tabella 
+
+DELIMITER //
+CREATE TRIGGER valida_appartenenza_team
+BEFORE INSERT ON utenti
+FOR EACH ROW
+BEGIN
+    DECLARE team_count INT;
+    IF NEW.team IS NOT NULL THEN
+        SET team_count = (SELECT COUNT(*) FROM team WHERE sigla = NEW.team);
+        IF team_count = 0 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Nessun team ha la sigla specificata.';
+        END IF;
+    END IF;
+END//
+DELIMITER ;
+
+# Questo è per un inserimento, ma lo facciamo anche per un
+# aggiornamento. 
+
+DELIMITER //
+CREATE TRIGGER valida_appartenenza_team_anticipa_update
+BEFORE UPDATE ON utenti
+FOR EACH ROW
+BEGIN
+    DECLARE team_count INT;
+    IF NEW.team IS NOT NULL THEN
+        SET team_count = (SELECT COUNT(*) FROM team WHERE sigla = NEW.team);
+        IF team_count = 0 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Nessun team ha la sigla specificata.';
+        END IF;
+    END IF;
+END//
+DELIMITER ;
+
+# Vogliamo anche dopo l'eliminazione di un team
+# tutti gli utenti.team con il valore uguale a
+# team.sigla diventino null.
+
+DELIMITER //
+CREATE TRIGGER post_eliminazione_team
+AFTER DELETE ON team
+FOR EACH ROW
+BEGIN 
+    UPDATE utenti 
+    SET team = NULL WHERE team = OLD.sigla;
+END;
+//
+DELIMITER ;
+
+# Possiamo ora concentrarci alla tabella dei 
+# progetti, dove abbiamo gli attributi ID, 
+# progetto, descrizione, scadenza, teamresp.
+# id_progetto sarà una chiave primaria auto incrementale.
+# Progetto potrá essere formato da massimo 50 
+# caratteri non nulli che rispetteranno una 
+# regexp di sole lettere e spazi. Descrizione,
+# invece, potrà arrivare fino a 255 caratteri 
+# senza limitazioni su simboli e numeri, che 
+# peró verranno gestiti lato php e js per 
+# iniezioni SQL o XSS. Scadenza sará un tipo
+# date non nullo. Infine, abbiamo team che 
+# sará la nostra chiave esterna che si riferisce
+# a team.sigla. E il suo default sarà NULL. 
+
+CREATE TABLE progetti (
+    id_progetto INT AUTO_INCREMENT PRIMARY KEY,
+    progetto VARCHAR(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+    descrizione VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT "",
+    scadenza DATETIME NOT NULL,
+    team_responsabile VARCHAR(3) COLLATE utf8mb4_general_ci DEFAULT NULL,
+    FOREIGN KEY (team_responsabile) REFERENCES team(sigla) ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT `valida_nome_progetto` CHECK (progetto REGEXP '^[a-zA-ZÀ-ÿ](?:[a-zA-ZÀ-ÿ\'\\s]{0,48}[a-zA-ZÀ-ÿ])?$')
+);
+
+# Ma progetto deve essere anche un valore unico
+# Bisogna evitare progetti con nomi uguali
+
+ALTER TABLE progetti 
+MODIFY PROGETTO VARCHAR(50) COLLATE utf8mb4_unicode_ci NOT NULL unique;
+
+# Ogni volta che aggiungo, aggiorno o cancello un progetto
+# bisogna aggiornare il conteggio di progetti affidati ad 
+# un team. Quindi creo 3 trigger 
+
+DELIMITER //
+CREATE TRIGGER conteggio_progetti_post_inserimento
+AFTER INSERT ON progetti
+FOR EACH ROW
+BEGIN
+    UPDATE team
+    SET numero_progetti = numero_progetti + 1
+    WHERE sigla = NEW.team_responsabile;
+END;
+//
+
+CREATE TRIGGER conteggio_progetti_post_aggiornamento
+AFTER UPDATE ON progetti
+FOR EACH ROW
+BEGIN
+        UPDATE team
+        SET numero_progetti = numero_progetti - 1
+        WHERE sigla = OLD.team_responsabile;
+        
+        UPDATE team
+        SET numero_progetti = numero_progetti + 1
+        WHERE sigla = NEW.team_responsabile;
+END;
+//
+
+CREATE TRIGGER conteggio_progetti_post_eliminazione
+AFTER DELETE ON progetti
+FOR EACH ROW
+BEGIN
+    UPDATE team
+    SET numero_progetti = numero_progetti - 1
+    WHERE sigla = OLD.team_responsabile;
+END;
+//
+DELIMITER ;
+
+# Con Team e Utenti creiamo una semplice vista da poter usare
+# per fare query semplificate in php in cui vedo l'anagraficia
+# di chi é responsaibile del team. 
+
+CREATE VIEW vista_team_utenti AS
+SELECT 
+    t.sigla AS sigla_team,
+    t.nome AS nome_team,
+    t.numero_progetti AS numero_progetti,
+    t.responsabile AS responsabile_team,
+    CONCAT(u.cognome, ' ', u.nome) AS anagrafica_utente
+FROM team t
+LEFT JOIN utenti u ON t.responsabile = u.email;
+
+# Con Progetti, Team e Utenti possiamo creare una vista da
+# poter sfruttare con php per ottenere quali sono i progetti
+# da quale team sono capitani e chi é il loro capo 
+
+CREATE VIEW vista_progetti_team_utenti AS
+SELECT 
+    p.id_progetto AS id_progetto,
+    p.progetto AS nome,
+    p.descrizione AS descrizione,
+    p.scadenza AS scadenza,
+    j.sigla AS sigla_team,
+    j.team AS team,
+    j.email_responsabile,
+    CONCAT(j.nome, ' ', j.cognome) AS anagrafica
+FROM progetti p
+LEFT JOIN 
+    (
+        SELECT t1.sigla, t1.nome AS team, t1.responsabile AS email_responsabile, u1.nome AS nome, u1.cognome AS cognome
+        FROM team t1
+        LEFT JOIN utenti u1 ON t1.responsabile = u1.email
+    ) j ON p.team_responsabile = j.sigla;
+
+
+# Tuttavia per motivi di efficienza ci limitiamo al numero
+# di dati che ci interessano e facciamo una vista tra solo
+# progetti e team. 
+
+CREATE VIEW vista_progetti_team AS
+SELECT 
+    p.id_progetto AS id_progetto,
+    p.progetto AS nome,
+    p.descrizione AS descrizione,
+    p.scadenza AS scadenza,
+    t.sigla AS sigla_team,
+    t.nome AS team
+FROM progetti p
+LEFT JOIN team t ON p.team_responsabile = t.sigla;
+
+
+# Creiamo ora la tabella degli stati, formato
+# dagli attributi id_progetto, stato, colore_hex, 
+# ordine_stati e nascosto.
+# id_progetto sará chiave esterna che si riferisce a 
+# id_progetto. La composizione (id_progetto, stato) sarà
+# invece una chiave primaria per la tabella degli stati.
+# la combinazione (id_progetto, ordine_stati) deve essere 
+# unica. 
+# Stato sarà una stringa di massimo 20 caratteri 
+# che conterrá un certo pattern di soli caratteri 
+# alfanumerici e spazi. 
+# Colore_hex sará un varchar(9) che rispetterà il pattern
+# '^#[0-9a-fA-F]{8}$' not null e di default #ffffffff. 
+# Visibile sará un booleano vero o falso, quindi non nullo
+# e ci servirà per capire se sia visibile di default. 
+# Ordine_stati sará un intero (non negativo e not null). 
+# Usando un trigger per la tabella progetti ci assicuriamo
+# che alla creazione di un nuovo progetto siano create 
+# automaticamente 5 tuple in ordine stati, in corso,
+# in attesa, completate, in ritardo, eliminate, con dei
+# campi presettati e che rendiamo modificabili dal solo 
+# capo_team direttamente con php e js. 
+
+CREATE TABLE stati (
+    id_progetto INT,
+    stato VARCHAR(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+    colore_hex VARCHAR(9) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#ffffffff',
+    ordine_stati INT UNSIGNED NOT NULL,
+    visibile BOOLEAN NOT NULL,
+    PRIMARY KEY (id_progetto, stato),  
+    UNIQUE (id_progetto, ordine_stati), 
+    FOREIGN KEY (id_progetto) REFERENCES progetti(id_progetto) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `valida_stato` CHECK (stato REGEXP '^[a-zA-Z0-9]{1}[a-zA-Z0-9\\s]{0,19}$'),
+    CONSTRAINT `valida_colore_hex` CHECK (colore_hex REGEXP '^#[0-9a-fA-F]{8}$')
+);
+
+DELIMITER //
+CREATE TRIGGER crea_tuple_stati
+AFTER INSERT ON progetti
+FOR EACH ROW
+BEGIN
+    INSERT INTO stati (id_progetto, stato, colore_hex, ordine_stati, visibile)
+    VALUES (NEW.id_progetto, 'In Corso', '#FFA500FF', 0, TRUE),
+           (NEW.id_progetto, 'In Attesa', '#FFFF00FF', 1, TRUE),
+           (NEW.id_progetto, 'completate', '#00FF00FF', 2, TRUE),
+           (NEW.id_progetto, 'In Ritardo', '#FF0000FF', 3, TRUE),
+           (NEW.id_progetto, 'eliminate', '#808080FF', 4, FALSE);
+END;
+//
+DELIMITER ;
+
+# Ogni progetto potrà avere le sue schede attività
+# con i seguenti attributi uuid_scheda, progetto, 
+# stato, titolo, descrizione, autore, creazione, scadenza,
+# ordine_schede.
+# uuid_scheda sará memorizzato, come abbiamo fatto per 
+# utenti, in formato binario, e sará la nostra chiave 
+# primaria.
+# id_progetto e stato formeranno una chiave esterna
+# che fa riferimento alla chiave primaria composta
+# (id_progetto, stato) della tabella stati. Non 
+# potranno quindi essere null e devono rispettare gli 
+# stessi vincoli. 
+# titolo dovrà essere di massimo 50 caratteri e potrà 
+# avere solo alcuni tipi di simboli.
+# descrizione sarà di tipo text, e i dati prima di 
+# arrivare in questa colonna saranno sanificati sia 
+# lato server, via php, sia lato client, via js. 
+# autore sarà chiave esterna che si riferisce a 
+# utenti.email e sarà di default null. Se l'utente
+# viene eliminato la scheda non viene cancellata e
+# avrá null nel campo autore, se l'utente cambia email
+# questo si riflette anche nella tabella schede. 
+# creazione e scadenza saranno di tipo datetime. 
+# Creazione non puó avere valore nullo e avrà di
+$ default il current_timestamp, mentre scadenza valore
+# nullo.
+# ordine_schede sarà un unsigned int ma con 
+# (id_progetto, stato, ordine_schede) che formeranno 
+# una chiave unica (non primaria!!!).
+
+CREATE TABLE schede (
+    uuid_scheda BINARY(16) NOT NULL,
+    id_progetto INT,
+    stato VARCHAR(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+    titolo VARCHAR(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+    descrizione TEXT COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+    autore VARCHAR(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+    creazione DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+    scadenza DATETIME DEFAULT NULL,
+    ordine_schede INT UNSIGNED NOT NULL, 
+    PRIMARY KEY (uuid_scheda),
+    UNIQUE (id_progetto, stato, ordine_schede), 
+    FOREIGN KEY (autore) REFERENCES utenti(email) ON UPDATE CASCADE ON DELETE SET NULL,
+    FOREIGN KEY (id_progetto, stato) REFERENCES stati(id_progetto, stato) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `valida_stato` CHECK (stato REGEXP '^[a-zA-Z0-9]{1}[a-zA-Z0-9\\s]{0,19}$'),
+    CONSTRAINT `valida_titolo` CHECK (`titolo` regexp '^[a-zA-Z0-9]{1}[$£€¥&@#ÀàÁáÂâÃãÄäÅåÆæÇçÈèÉéÊêËëÌìÍíÎîÏïÐðÑñÒòÓóÔôÕõÖöØøÙùÚúÛûÜüÝýÞþßÿa-zA-Z0-9 \\s \' . , : ; ! ? \\% -]{0,49}$')
+)
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_general_ci
+ENGINE=InnoDB;
+
+DELIMITER //
+CREATE TRIGGER anticipo_inserimento_scheda
+BEFORE INSERT ON schede
+FOR EACH ROW
+BEGIN
+	SET @uuid = UUID();
+	SET NEW.uuid_scheda = UNHEX(CONCAT(
+		SUBSTR(@uuid, 15, 4),
+		SUBSTR(@uuid, 10, 4),
+		SUBSTR(@uuid, 1, 8),
+		SUBSTR(@uuid, 20, 4),
+		SUBSTR(@uuid, 25))
+	);
+END; //
+DELIMITER ;
+
+# In realtá questi non sono tutti i dati che interessano
+# le schede. Infatti per questione di ordine e per avere
+# query meno complesse ma solo in casi specifici, si è 
+# preferita la creazione di un'altra tabella per info 
+# aggiuntive. Pertanto, chiamiamo questa tabella info_schede
+# e avrà numero di tuple 1:1 con la tabella scheda. 
+# Le colonne che caratterizzano questa tupla saranno:
+# uuid_scheda, incaricato, inizio_mandato, fine_mandato
+# spostamento, spostato_da, data_inizio, data fine, 
+# ultima_modifica e modificato_da.
+# uuid_scheda sará chiave primaria e anche chiave esterna 
+# che fa riferimento all'omonima nella tabella schede.
+# incaricato, spostato_da e modificato_da saranno chiavi
+# esterne che si riferiscono a utenti.email e saranno di 
+# default null, on update cascade e on delete set null. 
+# inizio_mandato fine_mandato, spostamento, data_inizio, 
+# data_fine e ultima_modifica saranno tutti dei datetime 
+# di cui solo data_inizio di default è un CURRENT_TIMESTAMP,
+# mentre gli altri di default null.
+
+CREATE TABLE info_schede (
+    uuid_scheda BINARY(16) NOT NULL,
+    incaricato VARCHAR(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+    inizio_mandato DATETIME DEFAULT NULL,
+    fine_mandato DATETIME DEFAULT NULL,
+    spostamento DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+    spostato_da VARCHAR(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+    data_inizio DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+    data_fine DATETIME DEFAULT NULL,
+    ultima_modifica DATETIME DEFAULT NULL,
+    modificato_da VARCHAR(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+    PRIMARY KEY (uuid_scheda),  
+    FOREIGN KEY (uuid_scheda) REFERENCES schede(uuid_scheda) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (incaricato) REFERENCES utenti(email) ON UPDATE CASCADE ON DELETE SET NULL,
+    FOREIGN KEY (spostato_da) REFERENCES utenti(email) ON UPDATE CASCADE ON DELETE SET NULL,
+    FOREIGN KEY (modificato_da) REFERENCES utenti(email) ON UPDATE CASCADE ON DELETE SET NULL
+)
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_general_ci
+ENGINE=InnoDB;
+
+# Per creare però le tuple anche in info_schede dobbiamo
+# usare un trigger che dopo creata una scheda in schede 
+# con un certo uuid, viene creata una tupla in info_schede
+# con lo stesso uuid. 
+
+DELIMITER //
+
+CREATE TRIGGER crea_info_schede_dopo_inserimento
+AFTER INSERT ON schede
+FOR EACH ROW
+BEGIN
+    INSERT INTO info_schede (uuid_scheda, incaricato, inizio_mandato, fine_mandato, spostamento, spostato_da, data_inizio, data_fine, ultima_modifica, modificato_da)
+    VALUES (NEW.uuid_scheda, NULL, NULL, NULL, CURRENT_TIMESTAMP(), NEW.autore, CURRENT_TIMESTAMP(), NULL, NULL, NULL);
+END //
+
+DELIMITER ;
+
+# Creo due viste, per visualizzare rispettivamente alcune
+# informazioni delle schede 'Completate' e 'In Ritardo'.
+# In questo modo rendo piú semplice catturare quello che mi
+# interessa delle schede in queste due categorie per il 
+# codice in php.
+
+CREATE VIEW vista_schede_completate AS
+SELECT s.uuid_scheda, s.id_progetto, s.titolo, s.stato, i.spostamento
+FROM schede s
+JOIN info_schede i ON s.uuid_scheda = i.uuid_scheda
+WHERE s.stato = 'Completate';
+
+CREATE VIEW vista_schede_in_ritardo AS
+SELECT s.uuid_scheda, s.id_progetto, s.titolo, s.stato, i.spostamento
+FROM schede s
+JOIN info_schede i ON s.uuid_scheda = i.uuid_scheda
+WHERE s.stato = 'In Ritardo';
+
+
+
+# Ci serve creare una procedura che richiameremo con php
+# prima di voler creare (insert) una nuova tupla db, per
+# poter tenere ordinate le schede nel db con stesso
+# (id_progetto, stato), partendo da 0 e incrementando
+# di 1 senza buchi. La procedura creata si serve di 
+# un cursore per selezionare combinazioni distinte di 
+# id_progetto e stato, e per ognuna di esse viene 
+# eseguito un set di operazioni riga per riga. 
+# se non vengono trovate piú righe dobbiamo forzare la
+# l'interruzione della procedura che altrimenti 
+# procederebbe all'infinito dando problemi di performance
+# al db. Quindi selezioniamo che quando nessuna riga è 
+# trovata (NOT FOUND) impostiamo is_righe_finite = true.
+# Aperto il cursore facciamo partire un ciclo di lettura 
+# in cui catturiamo con un FETCH i valori correnti di 
+# id_progetto e schede del cursore nelle variabili
+# progetto e categoria. Finchè le righe non finiscono 
+# trovo il valore minimo di ordine_schede per la data
+# combinazione di id_progetto e stato, e decremento 
+# tutti gli ordini per il valore minimo, cosí da 
+# assicurarci un ordinamento che parte da zero. 
+# Ora non ci resta altro che riempire i buchi.
+# Inizializzo una variabile di sessione @ordine che 
+# verrà utilizzata per mantenere un ordine incrementale.
+# Quindi aggiorno ordine_schede per gli id_progetto e 
+# stato specificati ordinandoli per il loro ordine_schede
+# precedente (ascendente). Per ogni riga analizzata 
+# @ordine viene incrementato di uno. Finito di analizzare 
+# ogni copia, l'handler NOT FOUND avrà già impostato 
+# is_righe_finite = true ponendo fine al ciclo, e quindi 
+# alla procedura.
+
+DELIMITER //
+CREATE PROCEDURE OrdinaSchede()
+BEGIN
+    DECLARE is_righe_finite INT DEFAULT FALSE;
+    DECLARE progetto INT;
+    DECLARE categoria VARCHAR(20) COLLATE utf8mb4_unicode_ci;
+    DECLARE min_ordine INT;
+
+    DECLARE cur CURSOR FOR SELECT DISTINCT id_progetto, stato FROM schede;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET is_righe_finite = TRUE;
+
+    OPEN cur;
+
+    ciclo_lettura: LOOP
+        FETCH cur INTO progetto, categoria;
+        IF is_righe_finite THEN
+            LEAVE ciclo_lettura;
+        END IF;
+
+        -- Trovo il valore minimo di ordine_schede per la combinazione id_progetto e stato
+        SELECT MIN(ordine_schede) INTO min_ordine FROM schede WHERE id_progetto = progetto AND stato = categoria;
+
+        -- Decremento tutti gli ordini di min_ordine per la combinazione id_progetto e stato
+        UPDATE schede SET ordine_schede = ordine_schede - min_ordine WHERE id_progetto = progetto AND stato = categoria;
+
+        -- Assegno gli ordini incrementali partendo da 0
+        SET @ordine := -1;
+        UPDATE schede SET ordine_schede = (@ordine := @ordine + 1) WHERE id_progetto = progetto AND stato = categoria ORDER BY ordine_schede;
+
+    END LOOP;
+
+    CLOSE cur;
+END //
+DELIMITER ;
+
+# Possiamo creare una procedura simile anche per riordinare
+# gli stati di ogni progetto. Quindi con la stessa logica
+# facciamo scorrere il cursore per ogni coppia
+# id_progetto.
+# Usiamo le stesse tecniche per identificare il minimo che
+# ci serve per imporre un ordinamento che parte da 0, e 
+# per dichiarare un variabile di sessione incrementale che 
+# ci garantisce l'assenza di buchi nella successione. 
+# Ciclo e sessione sono chiuso con il solito gestore.
+
+DELIMITER //
+CREATE PROCEDURE OrdinaStati()
+BEGIN
+    DECLARE is_righe_finite INT DEFAULT FALSE;
+    DECLARE progetto INT;
+    DECLARE min_ordine INT;
+    DECLARE cur CURSOR FOR SELECT DISTINCT id_progetto FROM stati;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET is_righe_finite = TRUE;
+
+    OPEN cur;
+
+    ciclo_lettura: LOOP
+        FETCH cur INTO progetto;
+        IF is_righe_finite THEN
+            LEAVE ciclo_lettura;
+        END IF;
+
+        -- Trovo il valore minimo di ordine_stati per la chiave esterna id_progetto 
+        SELECT MIN(ordine_stati) INTO min_ordine FROM stati WHERE id_progetto = progetto;
+
+        -- Decremento tutti gli ordini di min_ordine per la combinazione id_progetto
+        UPDATE stati SET ordine_stati = ordine_stati - min_ordine WHERE id_progetto = progetto;
+
+        -- Assegno gli ordini incrementali partendo da 0
+        SET @ordine := -1;
+        UPDATE stati SET ordine_stati = (@ordine := @ordine + 1) WHERE id_progetto = progetto ORDER BY ordine_stati;
+
+    END LOOP;
+
+    CLOSE cur;
+END //
+DELIMITER ;
+
+# Tuttavia potremmo decidere di usare queste due procedure 
+# solo quando vogliamo fare un ordinamento di massa che 
+# risulta avere prestazioni ovviamente non ottimali. 
+# Se vogliamo fare un ordinamento piú selettivo e leggero
+# fatto partire dall'utente prima dell'inserimento di ogni
+# scheda o stato possiamo usare php per definire quali sono
+# i parametri da passare alla procedura. La procedura quindi
+# utilizzerà questi parametri preparati e se ad esempio stiamo
+# inserendo una scheda in un determinata categoria/stato di un 
+# determinato progetto, allora eseguiremo l'ordinamento solo per
+# questa coppia. Usiamo quindi la seguente procedura
+
+DELIMITER //
+
+CREATE PROCEDURE OrdinaSchedeSelettivo(IN progetto INT, IN categoria VARCHAR(20) COLLATE utf8mb4_unicode_ci)
+BEGIN
+    DECLARE min_ordine INT;
+
+    -- Trovo il valore minimo di ordine_schede per la combinazione id_progetto e stato
+    SELECT MIN(ordine_schede) INTO min_ordine FROM schede WHERE id_progetto = progetto AND stato = categoria;
+
+    -- Decremento tutti gli ordini di min_ordine per la combinazione id_progetto e stato
+    UPDATE schede SET ordine_schede = ordine_schede - min_ordine WHERE id_progetto = progetto AND stato = categoria;
+
+    -- Assegno gli ordini incrementali partendo da 0
+    SET @ordine := -1;
+    UPDATE schede SET ordine_schede = (@ordine := @ordine + 1) WHERE id_progetto = progetto AND stato = categoria ORDER BY ordine_schede;
+
+END //
+
+DELIMITER ;
+
+# facciamo lo stesso per ordinare le categoria (stati)
+
+DELIMITER //
+
+CREATE PROCEDURE OrdinaStatiSelettivo(IN progetto INT)
+BEGIN
+    DECLARE min_ordine INT;
+
+    -- Trovo il valore minimo di ordine_stati per la chiave esterna id_progetto 
+    SELECT MIN(ordine_stati) INTO min_ordine FROM stati WHERE id_progetto = progetto;
+
+    -- Decremento tutti gli ordini di min_ordine per la chiave esterna id_progetto
+    UPDATE stati SET ordine_stati = ordine_stati - min_ordine WHERE id_progetto = progetto;
+
+    -- Assegno gli ordini incrementali partendo da 0
+    SET @ordine := -1;
+    UPDATE stati SET ordine_stati = (@ordine := @ordine + 1) WHERE id_progetto = progetto ORDER BY ordine_stati;
+
+END //
+
+DELIMITER ;
+
+
+
+
+# Ogni scheda avrà i suoi commenti. Creiamo quindi una
+# tabella commenti che avrà le seguenti colonne:
+# uuid_commento, uuid_scheda, contenuto, mittente, 
+# inviato, destinatario, modificato_da, modificato_il
+# uuid_commento sará memorizzato, come abbiamo fatto 
+# per utenti e schede, in formato binario, e sará la
+# nostra chiave primaria.
+# uuid_scheda sarà NOT NULL e una chiave esterna che 
+# fa riferimento all'omonima chiave primaria della 
+# tabella scheda. In particolare sarà settata come 
+# ON UPDATE CASCADE e ON DELETE CASCADE.
+# contenuto sarà di tipo text, e i dati prima di 
+# arrivare in questa colonna saranno sanificati sia 
+# lato server, via php, sia lato client, via js. 
+# mittente, destinatario e modificato_da sono chiavi 
+# esterne che fanno riferimento tutte a utenti.email
+# con ON UPDATE CASCADE e ON DELETE SET NULL.
+# inviato e modificato_il saranno invece dei datetime,
+# il primo NOT NULL e default CURRENT_TIMESTAMP, e il
+# secondo default NULL.
+
+CREATE TABLE commenti (
+    uuid_commento BINARY(16) NOT NULL,
+    uuid_scheda BINARY(16) NOT NULL,
+    contenuto TEXT COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Commento Eliminato',
+    mittente VARCHAR(255) DEFAULT NULL,
+    inviato DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+    destinatario VARCHAR(255)  DEFAULT NULL,
+    modificato_da VARCHAR(255) DEFAULT NULL,
+    modificato_il DATETIME DEFAULT NULL,
+    uuid_in_risposta VARCHAR(32) DEFAULT NULL,
+    PRIMARY KEY (uuid_commento),
+    FOREIGN KEY (uuid_scheda) REFERENCES schede(uuid_scheda) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (mittente) REFERENCES utenti(email) ON UPDATE CASCADE ON DELETE SET NULL,
+    FOREIGN KEY (destinatario) REFERENCES utenti(email) ON UPDATE CASCADE ON DELETE SET NULL,
+    CONSTRAINT valida_fragment CHECK (uuid_in_risposta REGEXP '^[0-9a-fA-F]{32}$')
+)
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_general_ci
+ENGINE=InnoDB;
+
+DELIMITER //
+CREATE TRIGGER anticipo_inserimento_commento
+BEFORE INSERT ON commenti
+FOR EACH ROW
+BEGIN
+	SET @uuid = UUID();
+	SET NEW.uuid_commento = UNHEX(CONCAT(
+		SUBSTR(@uuid, 15, 4),
+		SUBSTR(@uuid, 10, 4),
+		SUBSTR(@uuid, 1, 8),
+		SUBSTR(@uuid, 20, 4),
+		SUBSTR(@uuid, 25))
+	);
+END; //
+DELIMITER ;
+
+# Manca un'ultima tabella per report di azioni, di 
+# progresso e statistici, che sarà riempita 
+# direttamente con query via PHP. Sarà formata dalle 
+# colonne: 
+# uuid_report, tipo, timestamp, attore, descrizione, 
+# link, utente, team, progetto e scheda. 
+# uuid_report sarà la nostra chiave primaria, che 
+# ancora una volta sarà salvata in formato binario.
+# tipo_azione sarà un enum che conterrà le tipologie 
+# target delle azioni come sessione, utente, team, 
+# progetto, scheda ecc.
+# timestamp sarà un datetime not null di default
+# current_timestamp.
+# attore sarà chiave esterna di default null che si 
+# riferisce, se esiste, a colui che compie le azioni. 
+# descrizione servirà per descrivere in breve, ma
+# comunque in modo più specifico, il tipo di
+# azione compiuta. Sarà un varchar(255) limitato 
+# nell'uso di caratteri. 
+# link sarà un varchar con caratteri limitati che 
+# ci serve in alcuni casi per poter controllare
+# il team, la scheda o il commento interressato.
+# utente, team, progetto e scheda saranno tutte 
+# chiave esterne di default null. Serviranno per 
+# dare informazioni aggiuntive su chi o cosa 
+# riguarda l'azione e si riferiranno la prima
+# all'email dell'utente, la seconda alla sigla del team,
+# la terza all'id e la quarta all'uuid.
+# Volendoci tutelare da utenti furbi che potrebbero
+# decidere semplicemente di eliminarsi o cambiare 
+# email optiamo per un ON UPDATE CASACADE e ON DELETE 
+# SET NULL. Nel caso un utente si elimini dopo aver 
+# svolto l'azione o ci siano state modifiche 
+# successive sospette inseriamo due colonne. 
+# Queste saranno attore_era e bersaglio_era.
+
+
+CREATE TABLE report (
+    uuid_report BINARY(16) NOT NULL,
+    tipo_azione ENUM('sessione', 'utente', 'team', 'progetto', 'scheda') NOT NULL,
+    timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+    attore VARCHAR(255) DEFAULT NULL,
+    descrizione VARCHAR(255) NOT NULL DEFAULT 'errore descrizione tipo azione',
+    link VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    utente VARCHAR(255) DEFAULT NULL,
+    team VARCHAR(3) DEFAULT NULL,
+    progetto INT DEFAULT NULL,
+    categoria VARCHAR(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    scheda BINARY(16) DEFAULT NULL,
+    attore_era VARCHAR(255) DEFAULT NULL,
+    bersaglio_era VARCHAR(255) DEFAULT NULL,
+    PRIMARY KEY (uuid_report),
+    FOREIGN KEY (attore) REFERENCES utenti(email) ON UPDATE CASCADE ON DELETE SET NULL,
+    FOREIGN KEY (utente) REFERENCES utenti(email) ON UPDATE CASCADE ON DELETE SET NULL,
+    FOREIGN KEY (team) REFERENCES team(sigla) ON UPDATE CASCADE ON DELETE SET NULL,
+    FOREIGN KEY (progetto) REFERENCES progetti(id_progetto) ON UPDATE CASCADE ON DELETE SET NULL,
+    FOREIGN KEY (scheda) REFERENCES schede(uuid_scheda) ON UPDATE CASCADE ON DELETE SET NULL,
+    CONSTRAINT `valida_link` CHECK (link REGEXP '^[a-zA-Z0-9\\-._~:/?#[\\]@!$&\'()*+,;=%]{0,255}$')
+)
+
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_general_ci
+ENGINE=InnoDB;
+
+DELIMITER //
+CREATE TRIGGER anticipo_inserimento_report
+BEFORE INSERT ON report
+FOR EACH ROW
+BEGIN
+	SET @uuid = UUID();
+	SET NEW.uuid_report = UNHEX(CONCAT(
+		SUBSTR(@uuid, 15, 4),
+		SUBSTR(@uuid, 10, 4),
+		SUBSTR(@uuid, 1, 8),
+		SUBSTR(@uuid, 20, 4),
+		SUBSTR(@uuid, 25))
+	);
+END; //
+DELIMITER ;

@@ -1,0 +1,69 @@
+admin@procol.com - Administrator#1
+
+luigi.puca@procol.com - Sonoio1!
+filomena.marasco@procol.it - Mamma#22
+antimo.puca@procol.com - Babbo#28
+giovanni.puca@procol.com - Gianni#24
+giuseppina.puca@procol.com - Giusy#05
+alberto.deluca@procol.com - @lb3rt0D3Luca
+marco.rossi@procol.com - M@rc0R0$$1!
+luca.bianchi@procol.com - L^c@B!@nch1
+giulia.verdi@procol.com - G!ul!@V3rd1
+francesca.neri@procol.com - Fr@nc3$caN3r1
+andrea.conti@procol.com - @ndr34C0nt1
+valentina.esposito@procol.com - V@l3nt!n@3sp0s!t0
+federico.greco@procol.com - F3d3r!c0Gr3c0
+elena.ferri@procol.com - 3l3n@F3rr1
+simone.lombardi@procol.com - S!m0n3L0mb@rd1
+alessia.marino@procol.com - @l3$$!@M@r!n0
+matteo.ricci@procol.com - M@tt30R!cc1
+sara.moretti@procol.com - S@r@M0r3tt1!
+davide.gallo@procol.com - D@v!d3G@ll0
+chiara.pellegrini@procol.com - Ch!@r@P3ll3gr!n1
+laura.gatti@procol.com - L@ur@G@tt1
+stefano.romano@procol.com - St3f@n0R0m@no
+martina.sanna@procol.com - M@rt!n@S@nn4
+carlo.barbieri@procol.com - C@rl0B@rb!3r1
+beatrice.ruggieri@procol.com - B34tr!3Rugg13ri
+enrico.costantini@procol.com - 3nr!c0C0st@nt!n1
+roberta.fabbri@procol.com - R0b3rt@F@bbr1
+giorgio.amato@procol.com - G!0rg!0@M@t0
+anna.parisi@procol.com - @nn@P@r!s1
+tommaso.valli@procol.com - T0mm@soV@ll1
+
+I team a cui appartengono questi account automaticamente generati. Il primo di ogni team è il capo_team.
+Team 1: Luminous Falcons (LUF)
+Marco Rossi
+Beatrice Ruggieri
+Sara Moretti
+Davide Gallo
+Team 2: Silver Lynx (SLX)
+Luca Bianchi
+Elena Ferri
+Anna Parisi
+Team 3: Quantum Wolves (QWO)
+Giulia Verdi
+Alberto De Luca
+Tommaso Valli
+Enrico Costantini
+Team 4: Crimson Hawks (CRH) [si consiglia l'accesso a uno di questi account]
+Francesca Neri - Fr@nc3$caN3r1 (john doe)
+Simone Lombardi - S!m0n3L0mb@rd1 (emily white)
+Carlo Barbieri - C@rl0B@rb!3r1 (jane smith)
+Team 5: Golden Phoenix (GPH)
+Andrea Conti
+Martina Sanna
+Roberta Fabbri
+Team 6: Mystic Tigers (MYT)
+Valentina Esposito
+Giorgio Amato
+Matteo Ricci
+Team 7: Ethereal Eagles (ETE)
+Federico Greco
+Chiara Pellegrini
+Laura Gatti
+Team 8: Nebula Dragons (NBD)
+Stefano Romano
+Alessia Marino
+
+$2y$10$6p.zifRKgvC5109fOSw35uEJ5HmFn0VlMqbkgKVJs5tFtbOFxthgu
