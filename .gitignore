@@ -2,3 +2,4 @@
 .fiveserverrc.json
 fiveserver.config.js
 .php_tmp
+.htaccess
