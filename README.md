@@ -17,7 +17,7 @@ Per i dettagli funzionali e tecnici, consulta la [Specifica dei Requisiti](./Spe
 - MySQL/MariaDB
 - Browser moderno
 
-### Istruzioni per l'installazione [Qui ↗ ]([Specifica dei Requisiti](./istruzione_installazione.md)
+### Istruzioni per l'installazione [Qui ↗ ](./istruzione_installazione.md)
 ### Per l'accesso ad account fittizi già presenti nel database [Qui ↗ ](./Accessi.txt)
 
 📁 Struttura del Progetto
