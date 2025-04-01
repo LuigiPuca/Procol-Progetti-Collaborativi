@@ -51,14 +51,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['accesso'])) {
                 #e lo stesso anche per il cookie di sessione
                 $durata_cookie = (!$ricorda) ? 3600 : 21600;
                 $msg .= "Capo Team";
-                header("Location: ../"); //provvisorio
+                header("Location: ../home.html"); //provvisorio
                 // header('Location: capo_team_dashboard.php');
             } else {
                 #per un utente normale di base le imposto entrambe a 2h. Se allungo la sessione invece dureranno 12 ore
                 $durata_sessione = (!$ricorda) ? 7200 : 43200;
                 $durata_cookie = (!$ricorda) ? 7200 : 43200;
                 $msg .= "Utente";
-                header("Location: ../"); //provvisorio
+                header("Location: ../home.html"); //provvisorio
                 // header('Location: utente_dashboard.php');
             }
             # memorizzo quando ho effettuato l'accesso nella colonna 'ultimo_accesso' di utenti, e un resoconto nella tabella report

@@ -59,7 +59,7 @@ function estrazioneInfo() {
     const info = rispostaServer.info;
     if (!sm || sm.includes('negato')) {
         sm = sm ? "Accesso Negato: Sei stato reindirizzato!" : "Oops! Sembra ci sia un problema di connessione. Controlla la tua connessione a internet e al DB, e ricarica!";
-        Notifica.appari({messaggioNotifica: sm, tipoNotifica: 'special-info-notifica'});
+        Notifica.appari({messaggioNotifica: sm, tipoNotifica: 'special-notifica'});
         localStorage.setItem('messaggio', sm);
         localStorage.setItem('tipoMessaggio', 'info-notifica');
         window.location.href = 'login.html';

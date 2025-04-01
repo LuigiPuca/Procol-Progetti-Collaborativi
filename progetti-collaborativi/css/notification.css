@@ -93,28 +93,93 @@
     content: "";
     position: absolute;
     inset: 0;
-    padding: 0.12em;
-    border-radius: 15px;
+    padding: 0.15em;
+    border-radius: 10px;
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
 }
 
+@property --startColor-normal {
+    syntax: "<color>";
+    initial-value: rgb(152, 200, 238);
+    inherits: false;
+}
+
+@property --endColor-normal {
+    syntax: "<color>";
+    initial-value: rgb(77, 5, 123);
+    inherits: false;
+}
+
+@property --position {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+}
+
+@keyframes ---notification-gradient {
+    0% {
+        --startColor-normal: var(--color1);
+        --endColor-normal: var(--color2);
+        --position: -360deg;
+    }
+    25% {
+        --position: -180deg;
+    }
+    50% {
+        --startColor-normal: var(--color2);
+        --endColor-normal: var(--color1);
+        --position: 0deg;
+    }
+    75% {
+        --position: +180deg;
+    }
+    100% {
+        --startColor-normal: var(--color1);
+        --endColor-normal: var(--color2);
+        --position: 360deg;
+    }
+}
 .special-notifica::before {
-    background-image: linear-gradient(313deg, rgb(152, 200, 238), rgb(77, 5, 123));
+    --color1: rgb(152, 200, 238);
+    --color2: rgb(77, 5, 123);
+    background-image:
+        conic-gradient(from var(--position), transparent 0%, var(--startColor-normal) 45%, transparent 65%),
+        linear-gradient(313deg, var(--startColor-normal), var(--endColor-normal));
+        background-blend-mode: overlay;
+    animation: ---notification-gradient 3s linear infinite;
 }
 
 .special-errore-notifica::before {
-    background-image: linear-gradient(313deg, rgb(255, 0, 0), rgb(77, 5, 123));
+    --color1: rgb(255, 0, 0);
+    --color2: rgb(77, 5, 123);
+    background-image:
+        conic-gradient(from var(--position), transparent 0%, var(--startColor-normal) 45%, transparent 65%),
+        linear-gradient(313deg, var(--startColor-normal), var(--endColor-normal));
+        background-blend-mode: overlay;
+    animation: ---notification-gradient 3s linear infinite;
 }
 
-.special-attenzione-notifica::before {
-    background-image: linear-gradient(313deg, rgb(255, 200, 0), rgb(77, 5, 123));
+.special-notifica::before {
+    --color1: rgb(255, 200, 0);
+    --color2: rgb(77, 5, 123);
+    background-image:
+        conic-gradient(from var(--position), transparent 0%, var(--startColor-normal) 45%, transparent 65%),
+        linear-gradient(313deg, var(--startColor-normal), var(--endColor-normal));
+        background-blend-mode: overlay;
+    animation: ---notification-gradient 3s linear infinite;
 }
 
 .special-successo-notifica::before {
-    background-image: linear-gradient(313deg, rgb(152, 238, 158), rgb(77, 5, 123));
+    --color1: rgb(152, 238, 158);
+    --color2: rgb(77, 5, 123);
+    background-image:
+        conic-gradient(from var(--position), transparent 0%, var(--startColor-normal) 45%, transparent 65%),
+        linear-gradient(313deg, var(--startColor-normal), var(--endColor-normal));
+        background-blend-mode: overlay;
+    animation: ---notification-gradient 3s linear infinite;
 }
 
 .contenuto-notifica {
