@@ -20,13 +20,16 @@ Per i dettagli funzionali e tecnici, consulta la [Specifica dei Requisiti](./Spe
 ### Istruzioni per l'installazione [Qui ↗ ]([Specifica dei Requisiti](./istruzione_installazione.md)
 ### Per l'accesso ad account fittizi già presenti nel database [Qui ↗ ](./Accessi.txt)
 
-📁 Struttura del Progettoprogetti-collaborativi/
+📁 Struttura del Progetto
+```text
+progetti-collaborativi/
 ├── index.php
 ├── login.html
 ├── dashboard/
 ├── assets/
 ├── includes/
 └── README.md
+```
 
 👥 Contributori
  • Luigi Puca
