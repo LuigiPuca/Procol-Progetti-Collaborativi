@@ -162,7 +162,7 @@
     animation: ---notification-gradient 3s linear infinite;
 }
 
-.special-notifica::before {
+.special-attenzione-notifica::before {
     --color1: rgb(255, 200, 0);
     --color2: rgb(77, 5, 123);
     background-image:
