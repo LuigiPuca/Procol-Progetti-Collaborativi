@@ -24,7 +24,7 @@ const NuovaRichiestaHttpXML = {
         xhr.send(data);
     },
 
-    _isUtenteConnesso: function() {	
+    _isUtenteConnesso: function() {
         const rispostaServer = JSON.parse(xhr.responseText);
         console.log('Richiesta verifica accesso completata con successo');
         if (rispostaServer.isUtenteConnesso && !rispostaServer.isSessioneScaduta) {
@@ -50,12 +50,12 @@ const NuovaRichiestaHttpXML = {
     },
 
     verificaUtenteConnesso: () => {
-        NuovaRichiestaHttpXML.mandaRichiesta('POST', './services/session.php', true, 'Content-Type', 'application/x-www-form-urlencoded', '', NuovaRichiestaHttpXML._isUtenteConnesso);
+        NuovaRichiestaHttpXML.mandaRichiesta('POST', './services/controllers/session.php', true, 'Content-Type', 'application/x-www-form-urlencoded', 'no_DB=true', NuovaRichiestaHttpXML._isUtenteConnesso);
     },
 }
 
 function logout() {
-    NuovaRichiestaHttpXML.mandaRichiesta('POST', './services/logout.php', true, 'Content-Type', 'application/x-www-form-urlencoded', 'disconnessione==true', diLogout);
+    NuovaRichiestaHttpXML.mandaRichiesta('POST', './services/controllers/logout.php', true, 'Content-Type', 'application/x-www-form-urlencoded', 'disconnessione=true&no_DB=true', diLogout);
 }
 
 function diLogout() {

@@ -150,7 +150,7 @@ function verificaConnessione() {
     
 }
 function esciDaDashboard() {
-    NuovaRichiestaHttpXML.mandaRichiesta('POST', './services/logout.php', true, 'Content-Type', 'application/x-www-form-urlencoded', 'disconnessione==true', esci);
+    NuovaRichiestaHttpXML.mandaRichiesta('POST', './services/controllers/logout.php', true, 'Content-Type', 'application/x-www-form-urlencoded', 'disconnessione=true', esci);
 }
 function esci() {
     const rispostaServer = JSON.parse(xhr.responseText);

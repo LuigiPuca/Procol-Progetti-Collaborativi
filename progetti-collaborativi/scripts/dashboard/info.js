@@ -6,7 +6,7 @@ function richiestaEstrazioneInfo(){
     }, 100);  
 }
 function esciDaDashboard() {
-    NuovaRichiestaHttpXML.mandaRichiesta('POST', './services/logout.php', true, 'Content-Type', 'application/x-www-form-urlencoded', 'disconnessione==true', esci);
+    NuovaRichiestaHttpXML.mandaRichiesta('POST', './services/controllers/logout.php', true, 'Content-Type', 'application/x-www-form-urlencoded', 'disconnessione=true&no_DB=true', esci);
 }
 
 let giorniOrdinati = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
