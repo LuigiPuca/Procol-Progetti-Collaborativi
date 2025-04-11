@@ -3,11 +3,58 @@ require_once __DIR__ . '/../avvio.php';
 require_once __DIR__ . '/../models/Utente.php';
 
 /**
- * La classe AuthManager ci servirà per gestire tutti i processi di 
- * autenticazione, come login e logout.
+ * La classe AuthManager serve per gestire tutti i processi di 
+ * autenticazione, come accesso, disconnessione e registrazione.
  */
 
 class AuthManager {
+    public static function signup($nome, $cognome, $genere, $email, $psw, $mysqli) {
+        $sm = Risposta::get('messaggio');
+
+        #formatta i dati, per inserirli nel modo corretto nel DB
+        $nome = ucwords(mb_strtolower($nome));
+        $cognome = ucwords(mb_strtolower($cognome));
+        $email = mb_strtolower($email);
+
+        # hasha la password, per essere inviata in seguito al db
+        $password = password_hash($psw, PASSWORD_BCRYPT);
+        
+        # preimposta uno statement che verifichi l'esistenza nel db dell'email
+        $stmt = $mysqli->prepare("SELECT uuid FROM utenti WHERE email = ?");
+        # associa email al placeholder della query "?"
+        $stmt->bind_param("s", $email);
+        # esegue quindi effettivamente la query
+        $stmt->execute();
+        # memorriza il risultato della query
+        $stmt->store_result();
+
+        
+
+        # se il risultato restituisce almeno una riga
+        if ($stmt->num_rows > 0) {
+            # Account già esisente
+            Risposta::redirectPage("signup", "L'email esiste gi&agrave.");
+        }
+
+        # altrimenti, si procede con la registrazione
+        $query_registrazione = <<<SQL
+            INSERT INTO utenti (nome, cognome, genere, email, password) 
+                VALUES (?, ?, ?, ?, ?);
+        SQL;
+        $stmt = $mysqli->prepare($query_registrazione);
+        $stmt->bind_param("sssss", $nome, $cognome, $genere, $email, $password);
+        if (!$stmt->execute()) {
+            Risposta::redirectPage("signup", "Impossibile registrarsi.");
+        }
+
+        # genera un suffisso utile al msg di benvenuto
+        $suffisso = ($genere === 'maschio') ? 'o' : 'a';
+        $sm = 'Registrazione effettuata con successo! Benvenut' . $suffisso 
+            . ' ' . ucwords($nome) . " ". ucwords($cognome) 
+            . '<br>(' . $email . ')';
+        Risposta::redirectPage("signup", $sm);
+    }
+
     public static function login($email, $psw, $mysqli, $ricorda = false) {
         $sm = Risposta::get('messaggio');
         if (!$email || !$psw) {
@@ -58,14 +105,14 @@ class AuthManager {
         /**
          * Per motivi di sicurezza, si vuole che la sessione, lato server, duri
          * sempre meno al crescere dell'importanza del tipo di utenza. Se al 
-         * momento della connessione si è scelto di ricordare l'accesso, allora 
-         * la durata della sessione , specificata in secondi, sarà tot volte 
-         * maggiore di quella standard. 
-         * Per i cookie di sessione si verifica che, nel caso l'utente sia un 
-         * admin che ha scelto di non ricordare l'accesso, l'utente viene 
-         * disconnesso in modo forzato, seppur la sessione server potrebbe non 
+         * momento della connessione si è scelto di ricordare l'accesso, allora
+         * la durata della sessione , specificata in secondi, sarà tot volte
+         * maggiore di quella standard.
+         * Per i cookie di sessione si verifica che, nel caso l'utente sia un
+         * admin che ha scelto di non ricordare l'accesso, l'utente viene
+         * disconnesso in modo forzato, seppur la sessione server potrebbe non
          * essere scaduta.
-         * Per tutti gli altri casi i cookie di sessione avranno stessa durata 
+         * Per tutti gli altri casi i cookie di sessione avranno stessa durata
          * della sessione lato server.
          */
         $daSalvare = !($utente->isAdmin()) && !$ricorda;

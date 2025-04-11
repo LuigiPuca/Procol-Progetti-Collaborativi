@@ -1,39 +1,57 @@
 <?php
+/**
+ * La creazione e la connessione al database può essere fatta attraverso il
+ * seguente Singleton. In questo modo si garantisce al più una sola 
+ * connessione.
+ */ 
 
-$config = [
-    'db_host' => 'localhost',
-    'db_name' => 'progetticollaborativi',
-    'db_user' => 'root',
-    'db_password' => '',
-];
+class Database {
+    private static $istanza = null;
+    private $mysqli;
+    
+    private function __construct() {
+        $host = 'localhost';
+        $dbName = 'progetticollaborativi';
+        $dbUser = 'root';
+        $dbPassword = '';
 
+        $this->mysqli = new mysqli($host, $dbUser, $dbPassword, $dbName);
+        
+        # se la connessione al db fallisce 
+        if ($err = $this->mysqli->connect_error) {
+            throw new Exception('Errore: Connessione fallita: ' . $err);
+        }
 
-try {
-    // Creazione della connessione MySQLi
-    $mysqli = new mysqli($config['db_host'], $config['db_user'], $config['db_password'], $config['db_name']);
+        # se si verifica un errore nell'impostare UTF-8 come set di caratteri
+        if (!$this->mysqli->set_charset("utf8")) {
+            throw new Exception(
+                "Errore: Imposisbile impostazione del set " 
+                . "di caratteri UTF-8: " . $this->$mysqli->error
+            );
+        }
 
-    // Impostazione del set di caratteri UTF-8
-    if (!$mysqli->set_charset("utf8")) {
-        throw new Exception("Errore durante l'impostazione del set di caratteri UTF-8: " . $mysqli->error);
+        # forza a restituire interi e float nativi quando possibile
+        $this->mysqli->options(MYSQLI_OPT_INT_AND_FLOAT_NATIVE, true);
     }
 
-    // Uso Report error e strict per convertire errori in avvisi PHP ed eccezioni MySQLi, per evitare l'interruzione dello script PHP
-    mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+    # impediscono clonazione e deserialzizazione
+    private function __clone() {}
+    public function __wakeup()
+    {
+        throw new Exception("Cannot unserialize a singleton.");
+    }
 
-    // Disabilitazione della modalità di preparazione emulata
-    $mysqli->options(MYSQLI_OPT_INT_AND_FLOAT_NATIVE, true);
+    public static function getIstanza() {
+        if (self::$istanza === null) {
+            self::$istanza = new self();
+        }
+        return self::$istanza;
+    }
 
-    $isDBconnesso = true;
+    public function getDataBaseConnesso() {
+        return $this->mysqli;
+    }
 
-    # Memorizza un messaggio di conferma
-    $sm = "Connessione al database avvenuta con successo!";
-    // $a = base62_encode("Connessione al database avvenuta con successo!");
-    // header("Location: ../errore.html?msg=" . urlencode($a));
-} catch (Exception $e) {
-    // Gestione dell'eccezione
-    $sm = 'Errore: ' . $e->getMessage();
-} finally {
-    Risposta::set('messaggio', $sm);
 }
 
 ?>

@@ -336,7 +336,7 @@ function ricercaUtentiLiberi(primaOpzione = "", alreadyIn = "N/A") {
             Notifica.appari({messaggioNotifica: sm, tipoNotifica: 'special-errore-notifica'})
         }
         if (!rispostaServer.isAdmin) {
-            window.location.href = 'login.html';
+            window.location.href = 'portal.html';
         } else {
             let respAssegnabili = info[13];
             respAssegnabili.forEach(opzione => {

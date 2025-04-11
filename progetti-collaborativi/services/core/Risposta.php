@@ -34,13 +34,13 @@ class Risposta {
         exit;
     }
 
-    public static function redirectPage(string $tipo = "err", string $add) {
-        # add fa da stringa di supporto
+    public static function redirectPage(string $tipo = "err", $add = "") {
+        # add fa da parametro di supporto
         match($tipo) {
-            'errLogin' => (function() use ($add){
+            'errLogin', 'signup' => (function() use ($add){
                 $a = base64_encode( '' . $add . 
-                    '<br><br><a href="./login.html">Torna indietro</a>');
-                header("Location: ../../errore.html?msg=" . urlencode($a));
+                    '<br><br><a href="./portal.html">Torna indietro</a>');
+                header("Location: ../../redirect.html?msg=" . urlencode($a));
             })(),
             'okLogin' => (function() use ($add){
                 if ($add === 'admin') {
@@ -48,7 +48,7 @@ class Risposta {
                 } else {
                     header("Location: ../../home.html");
                 }              
-            })()
+            })(),
         };
         exit;
     }

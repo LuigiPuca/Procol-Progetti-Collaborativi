@@ -22,7 +22,7 @@ try {
             $stmt->fetch();
             $stmt->close();
             if (!$is_admin) {
-                //header('Location: ../login.html');
+                //header('Location: ../portal.html');
                 $sm = "Permesso negato: Sei stat$suffisso reindirizzat$suffisso";
             } else {
                 $sm = "Permesso consentito";

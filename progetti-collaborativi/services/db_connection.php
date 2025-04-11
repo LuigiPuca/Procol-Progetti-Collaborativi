@@ -24,7 +24,7 @@ try {
     // Stampa un messaggio di conferma
     $sm = "Connessione al database avvenuta con successo!";
     // $a = base62_encode("Connessione al database avvenuta con successo!");
-    // header("Location: ../errore.html?msg=" . urlencode($a));
+    // header("Location: ../redirect.html?msg=" . urlencode($a));
 } catch (Exception $e) {
     // Gestione dell'eccezione
     $sm = 'Si &egrave verificato un errore: ' . $e->getMessage();  

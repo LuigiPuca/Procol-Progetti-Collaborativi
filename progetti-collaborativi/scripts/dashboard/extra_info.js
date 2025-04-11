@@ -78,7 +78,7 @@ function estrazioneInfoExtra() {
         Notifica.appari({messaggioNotifica: sm, tipoNotifica: 'special-errore-notifica'})
     }
     if (!rispostaServer.isAdmin) {
-        window.location.href = 'login.html';
+        window.location.href = 'portal.html';
     } else {
         tempDataDaDB = rispostaServer.data;
     } 

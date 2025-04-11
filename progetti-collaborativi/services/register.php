@@ -70,8 +70,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['registrazione'])) {
         
         
     }
-    $a = base64_encode( '' . $msg . '<br><br><a href="./login.html">Torna indietro</a>');
-    header("Location: ../errore.html?msg=" . urlencode($a)); 
+    $a = base64_encode( '' . $msg . '<br><br><a href="./portal.html">Torna indietro</a>');
+    header("Location: ../redirect.html?msg=" . urlencode($a)); 
     exit(); 
 }
 ?>

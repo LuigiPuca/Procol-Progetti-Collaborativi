@@ -29,14 +29,15 @@ require_once __DIR__ . '/core/SessionManager.php';
 
 
 # Caricare il db solo se NON è stato richiesto esplicitamente di evitarlo
-$no_DB = (isset($_POST['no_DB']) ?? isset($_GET['no_DB']) ?? 'false') === 'true';
+$no_DB = (
+    isset($_POST['no_DB']) 
+    ?? isset($_GET['no_DB']) 
+    ?? 'false'
+) === 'true';
 
 if(!$no_DB) {
-    require_once __DIR__ . '/core/database.php';
-    if(!$isDBconnesso) {
-        Risposta::jsonDaInviare();
-        exit();
-    }
+    require_once __DIR__ . '/core/Database.php';
+    $mysqli = (Database::getIstanza())->getDataBaseConnesso();
 }
 
 

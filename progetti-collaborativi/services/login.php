@@ -107,8 +107,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['accesso'])) {
         #Altrimenti restituisco informazioni in json solo che l'accesso non è esistente
         // echo json_encode(array('isUtenteConnesso' => false));
         // echo '<br><br>';
-        $a = base64_encode( '' . $msg . '<br><br><a href="./login.html">Torna indietro</a>');
-        header("Location: ../errore.html?msg=" . urlencode($a)); 
+        $a = base64_encode( '' . $msg . '<br><br><a href="./portal.html">Torna indietro</a>');
+        header("Location: ../redirect.html?msg=" . urlencode($a)); 
         exit(); 
     }
     // echo $msg;

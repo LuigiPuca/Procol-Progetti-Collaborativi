@@ -41,7 +41,7 @@ function gestisciUtente(bottone, operazione, team = null) {
                         Notifica.appari({ messaggioNotifica: sm, tipoNotifica: 'special-successo-notifica' });
                     }
                     if (!rispostaServer.isAdmin) {
-                        window.location.href = 'login.html';
+                        window.location.href = 'portal.html';
                     }
                 }
             },

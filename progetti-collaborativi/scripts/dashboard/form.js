@@ -321,7 +321,7 @@ let Form = {
             // Salvo il messaggio e il tipo di notifica in localStorage, in modo da poter visualizzarli subito dopo il reindirizzamento
             localStorage.setItem('messaggio', sm);
             localStorage.setItem('tipoMessaggio', "errore-notifica");
-            window.location.href = 'login.html';
+            window.location.href = 'portal.html';
         } else if (sm.includes('Errore') || sm.includes('errore')) {
             Notifica.appari({messaggioNotifica: sm, tipoNotifica:'special-errore-notifica',});
             Form._chiusuraForm();

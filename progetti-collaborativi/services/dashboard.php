@@ -20,7 +20,7 @@ try {
         $stmt->fetch();
         $stmt->close();
         if (!$is_admin) {
-            //header('Location: ../login.html');
+            //header('Location: ../portal.html');
             $sm = "Accesso negato: Stai per essere reindirizzato";
         } else {
             $sm = "Accesso consentito";

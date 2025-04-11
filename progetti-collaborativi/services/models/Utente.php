@@ -49,7 +49,9 @@ class Utente {
         if ($row = $result->fetch_assoc()) {  
             # ... Assegna i valori dei campi agli attributi di this
             $this->email =  $row['email'];
-            $this->ruolo = $this->isGestoreDelTeam($row['email'], $row['ruolo'], $row['team']);
+            $this->ruolo = $this->isGestoreDelTeam(
+                $row['email'], $row['ruolo'], $row['team']
+            );
             $this->team  = $row['team'];
         } else {
             # ... Altrimenti messaggio di errore
@@ -61,7 +63,8 @@ class Utente {
 
     /**
      * Un capo team a cui non è assegnata la gestione del team a cui appartiene
-     * va in realtà considerato, ai fini dei permessi, un utente. Va verificato*/ 
+     * va in realtà considerato, ai fini dei permessi, un utente. Va verificato
+     */ 
     private function isGestoreDelTeam($email, $ruolo, $team) {
         $stmt = null;
         try {

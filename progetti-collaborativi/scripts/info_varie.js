@@ -135,7 +135,7 @@ function verificaConnessione() {
             bottoneEsci.classList.add('--hidden');
             localStorage.setItem('messaggio', "Oops accesso negato! Sessione scaduta.");
             localStorage.setItem('tipoMessaggio', "info-notifica");
-            window.location.href = 'login.html';
+            window.location.href = 'portal.html';
             resolve(null);
         } else {
             console.log('Nessun utente connesso');
@@ -143,7 +143,7 @@ function verificaConnessione() {
             bottoneEsci.classList.add('--hidden');
             localStorage.setItem('messaggio', "Oops accesso negato! Nessuna sessione attiva.");
             localStorage.setItem('tipoMessaggio', "info-notifica");
-            window.location.href = 'login.html';
+            window.location.href = 'portal.html';
             resolve(null);
         }
     });
@@ -170,7 +170,7 @@ function esci() {
     // Salvo il messaggio e il tipo di notifica in localStorage, in modo da poter visualizzarli subito dopo il reindirizzamento
     localStorage.setItem('messaggio', messaggioInviato);
     localStorage.setItem('tipoMessaggio', tipoInviato )
-    window.location.href = 'login.html';
+    window.location.href = 'portal.html';
 }
 
 bottoneEsci.addEventListener('click', esciDaDashboard); 

@@ -24,14 +24,14 @@ try {
     // Stampa un messaggio di conferma
     echo "Connessione al database avvenuta con successo! <br>";
     // $a = base62_encode("Connessione al database avvenuta con successo!");
-    // header("Location: ../errore.html?msg=" . urlencode($a));
+    // header("Location: ../redirect.html?msg=" . urlencode($a));
 } catch (Exception $e) {
     // Gestione dell'eccezione
-    echo 'Si &egrave verificato un errore: ' . $e->getMessage() . '<a href="login.html">Torna indietro</a>';
+    echo 'Si &egrave verificato un errore: ' . $e->getMessage() . '<a href="portal.html">Torna indietro</a>';
     echo "Si &egrave verificato un errore: " . $e->getMessage();
-    $a = base64_encode('Si &egrave verificato un errore: ' . $e->getMessage() . '<br><br><a href="./login.html">Torna indietro</a>');
+    $a = base64_encode('Si &egrave verificato un errore: ' . $e->getMessage() . '<br><br><a href="./portal.html">Torna indietro</a>');
     //inviamo l'errore a una pagina dedicata che ha giá uno stile pronto
-    header("Location: ../errore.html?msg=" . urlencode($a));
+    header("Location: ../redirect.html?msg=" . urlencode($a));
     
     
     exit(); // Esci dallo script in caso di errore

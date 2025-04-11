@@ -121,7 +121,7 @@ function rispostaBoardCRUD() {
                       
         }
     } else if (!rispostaServer.isUtenteConnesso && !rispostaServer.isSessioneScaduta) {
-        msgN = 'Attenzione: Nessuna sessione esistente. <a href="login.html" target="_blank">Accedi</a>';
+        msgN = 'Attenzione: Nessuna sessione esistente. <a href="portal.html" target="_blank">Accedi</a>';
         Notifica.appari({messaggioNotifica: msgN, tipoNotifica: 'special-attenzione-notifica',});
     }
     richiestaEstrazioneInfo();

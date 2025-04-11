@@ -40,7 +40,7 @@ function esci() {
     // Salvo il messaggio e il tipo di notifica in localStorage, in modo da poter visualizzarli subito dopo il reindirizzamento
     localStorage.setItem('messaggio', messaggioInviato);
     localStorage.setItem('tipoMessaggio', tipoInviato )
-    window.location.href = 'login.html';
+    window.location.href = 'portal.html';
 }
 
 bottoneEsci.addEventListener('click', esciDaDashboard); 
@@ -62,7 +62,7 @@ function estrazioneInfo() {
         Notifica.appari({messaggioNotifica: sm, tipoNotifica: 'special-notifica'});
         localStorage.setItem('messaggio', sm);
         localStorage.setItem('tipoMessaggio', 'info-notifica');
-        window.location.href = 'login.html';
+        window.location.href = 'portal.html';
         return;
     } else if (sm.includes('Errore')) {
         Notifica.appari({messaggioNotifica: sm, tipoNotifica: 'special-errore-notifica'})
@@ -70,7 +70,7 @@ function estrazioneInfo() {
     if (!rispostaServer.isAdmin) {
         localStorage.setItem('messaggio', 'Accesso negato: connessione assente o permessi non sufficiente a visualizzare la pagina!');
         localStorage.setItem('tipoMessaggio', 'info-notifica');
-        window.location.href = 'login.html';
+        window.location.href = 'portal.html';
         return;
     } else {
         let infoUI = document.querySelectorAll('.tile h5')[0]; // dove inseriremo il numero di utenti totali
