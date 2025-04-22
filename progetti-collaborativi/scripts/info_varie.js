@@ -24,7 +24,7 @@ function richiestaEstrazioneInfo(){
     ];
     const teamURL = "/progetti-collaborativi/team.html";
     const boardURL = "/progetti-collaborativi/board.html";
-    let queryString = `./services/info_varie.php`;
+    let queryString = `./services/controllers/retrieve.php`;
     let data = "";
     if (homeURLs.includes(currentURL)) {
         let sezione = document.querySelector('[page="home"]');
@@ -41,7 +41,7 @@ function richiestaEstrazioneInfo(){
         if(isParametroUgualeA('proj').presente){
             const idProgetto = isParametroUgualeA('proj').progetto;
             if(idProgetto) {
-                queryString = `./services/info_varie.php?proj=${idProgetto}`;
+                queryString = `./services/controllers/retrieve.php?proj=${idProgetto}`;
                 console.log("la querystring è", queryString);
             } else {
                 window.location.href = 'home.html';
@@ -58,6 +58,7 @@ function richiestaEstrazioneInfo(){
         verificaConnessione()
             .then(rispostaServer => {
                 if (rispostaServer) {
+                    console.log("ecco i dati", rispostaServer);
                     // Salvo i dati in un array
                     if (rispostaServer.sezione === 'home') {
                         ricavaDatiHome(rispostaServer.dati, rispostaServer.messaggio, rispostaServer.chi, rispostaServer.ruolo);

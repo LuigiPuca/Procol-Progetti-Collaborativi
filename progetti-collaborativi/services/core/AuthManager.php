@@ -8,7 +8,10 @@ require_once __DIR__ . '/../models/Utente.php';
  */
 
 class AuthManager {
-    public static function signup($nome, $cognome, $genere, $email, $psw, $mysqli) {
+    public static function signup(
+        $nome, $cognome, $genere, 
+        $email, $psw, $mysqli
+    ) {
         $sm = Risposta::get('messaggio');
 
         #formatta i dati, per inserirli nel modo corretto nel DB
@@ -17,7 +20,7 @@ class AuthManager {
         $email = mb_strtolower($email);
 
         # hasha la password, per essere inviata in seguito al db
-        $password = password_hash($psw, PASSWORD_BCRYPT);
+        $h_psw = password_hash($psw, PASSWORD_BCRYPT);
         
         # preimposta uno statement che verifichi l'esistenza nel db dell'email
         $stmt = $mysqli->prepare("SELECT uuid FROM utenti WHERE email = ?");
@@ -37,12 +40,12 @@ class AuthManager {
         }
 
         # altrimenti, si procede con la registrazione
-        $query_registrazione = <<<SQL
+        $query_registrazione = "
             INSERT INTO utenti (nome, cognome, genere, email, password) 
                 VALUES (?, ?, ?, ?, ?);
-        SQL;
+        ";
         $stmt = $mysqli->prepare($query_registrazione);
-        $stmt->bind_param("sssss", $nome, $cognome, $genere, $email, $password);
+        $stmt->bind_param("sssss", $nome, $cognome, $genere, $email, $h_psw);
         if (!$stmt->execute()) {
             Risposta::redirectPage("signup", "Impossibile registrarsi.");
         }
@@ -62,10 +65,10 @@ class AuthManager {
             Risposta::set('messaggio', $sm);
             Risposta::jsonDaInviare(400);
         }
-        $query = <<<SQL
+        $query = "
             SELECT HEX(`uuid`) as `uuid`, nome, cognome, genere, 
             `password`, ruolo FROM utenti WHERE email = ?
-        SQL;
+        ";
         
         $stmt = $mysqli->prepare($query); //prepara la query
         $stmt->bind_param("s", $email); //associa email al primo placeholder
@@ -149,13 +152,13 @@ class AuthManager {
     private static function logDiAccesso($email, $mysqli) {
         $mysqli->begin_transaction();
 
-        $query_update = <<<SQL
+        $query_update = "
             UPDATE utenti SET ultimo_accesso = NOW() WHERE email = ?
-        SQL; 
-        $query_report = <<<SQL
+        ";
+        $query_report = "
             INSERT INTO report (tipo_azione, attore, descrizione, attore_era) 
             VALUES ('sessione', ?, 'Accesso', ?)
-        SQL;
+        ";
         $stmt_update = $mysqli->prepare($query_update);
         $stmt_report = $mysqli->prepare($query_report);
         try {

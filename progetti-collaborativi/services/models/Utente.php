@@ -35,11 +35,11 @@ class Utente {
     }
     private function caricaDati() {
         # Usando placeholder e prepared statemend si evitano SQL-injection
-        $query = <<<SQL
+        $query = "
             SELECT email, ruolo, team
             FROM utenti 
             WHERE `uuid` = UNHEX(?)
-        SQL;
+        ";
         $stmt = $this->mysqli->prepare($query); // Prepara la query
         $stmt->bind_param('s', $this->uuid); // Associa l'UUID al placeholder
         $stmt->execute(); // Esegue la query
@@ -71,13 +71,13 @@ class Utente {
             if ($ruolo === 'utente' || $ruolo === 'admin' || !$ruolo) {
                 return $ruolo ? $ruolo : "utente";
             }
-            $query = <<<SQL
+            $query = "
                 SELECT COUNT(*)
                 FROM utenti u
                 JOIN team t
                 ON u.team = t.sigla AND t.responsabile = u.email
                 WHERE u.email = ? AND u.ruolo = 'capo_team'
-            SQL;
+            ";
             $stmt = $this->mysqli->prepare($query); //Prepara la query
             $stmt->bind_param("s", $email); //Binda l'email al placeholder
             $stmt->execute(); //Esegue la query

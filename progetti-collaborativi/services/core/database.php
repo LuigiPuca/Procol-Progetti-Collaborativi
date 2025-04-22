@@ -34,11 +34,11 @@ class Database {
         $this->mysqli->options(MYSQLI_OPT_INT_AND_FLOAT_NATIVE, true);
     }
 
-    # impediscono clonazione e deserialzizazione
+    # impedisce clonazione e deserializzazione
     private function __clone() {}
     public function __wakeup()
     {
-        throw new Exception("Cannot unserialize a singleton.");
+        throw new Exception("Impossibile deserializzare il Singleton");
     }
 
     public static function getIstanza() {
@@ -51,6 +51,15 @@ class Database {
     public function getDataBaseConnesso() {
         return $this->mysqli;
     }
+
+    public function chiudiConnessione() {
+        if ($this->mysqli !== null) {
+            $this->mysqli->close();
+            $this->mysqli = null;
+            self::$istanza = null;
+        }
+    }
+    
 
 }
 
