@@ -70,3 +70,56 @@ function checkPassword(...$psws): bool {
     }
     return true;
 }
+
+function checkTitles(
+    int $min_char = 1, int $max_char = 20, bool $use_default_symbols = false,
+    string $extra_symbols = "", ...$titoli
+): bool {
+    if ($min_char > $max_char || $min_char < 1) {
+        throw new InvalidArgumentException;
+    }
+    $diff = $max_char - $min_char;
+
+    $default_symbols = 
+        '\$£€¥&@#' .
+        'ÀàÁáÂâÃãÄäÅåÆæÇçÈèÉéÊêËëÌìÍíÎîÏïÐðÑñ' .
+        'ÒòÓóÔôÕõÖöØøÙùÚúÛûÜüÝýÞþßÿ' .
+        '\’\\\\\.,:;!?\%\-\''; // barra rovesciata, punto, virgola, ecc.
+
+    # sceglie quali simboli includere
+    $all_symbols = $use_default_symbols 
+        ? $default_symbols . $extra_symbols 
+        : $extra_symbols;
+
+    # per sicurezza, escapa ciò che non é stato escapato
+    $escaped = preg_quote($all_symbols, '/');
+    $pattern = "/
+        ^                                 # Inizio della stringa
+        [a-zA-Z0-9]{1}                    # 1° char alfanumerico (no accenti)
+        [a-zA-Z0-9\s$escaped]{0,$diff}    # Char alfanumerici o spazi opzionali
+        $                                 # Fine della stringa
+    /xu";                                 // con supporto unicode 
+    foreach ($titoli as $titolo) {
+        if (!is_string($titolo)) {
+            throw new InvalidArgumentException;
+        }
+        if (!preg_match($pattern, $titolo)) return false;
+    }
+    return true;
+}
+
+function checkHexColor(...$colori) {
+    $pattern = "/                         
+        ^                                 # Inizio della stringa
+        \#                                # Cancelletto
+        [0-9a-fA-F]{8}                    # 8 caratteri hex
+        $                                 # Fine della stringa
+    /x";
+    foreach ($colori as $colore) {
+        if (!is_string($colore)) {
+            throw new InvalidArgumentException;
+        }
+        if (!preg_match($pattern, $colore)) { return false; }
+    }
+    return true;
+}

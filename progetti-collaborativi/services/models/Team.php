@@ -21,17 +21,6 @@ final class Team extends Sezione {
         Risposta::jsonDaInviare();
     }
 
-    private function caricaProgetti() {
-        # query per controllare i progetti a cui il team partecipa
-        $query = "
-            SELECT p.id_progetto AS id, p.progetto AS nome_progetto 
-            FROM progetti p 
-            WHERE p.team_responsabile = ?
-        ";
-        $result = $this->caricaDati($query, "s", $this->team);
-        $this->fetchAndSanitize($result, 'progetti');
-    }
-
     private function caricaInfoTeam() {
         $query = "
             SELECT t.sigla AS sigla, t.nome AS team 
@@ -39,10 +28,7 @@ final class Team extends Sezione {
             JOIN utenti u ON t.sigla = u.team 
             WHERE u.email = ?
         ";
-        $stmt = $this->mydb->prepare($query);
-        $stmt->bind_param("s", $this->email);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        $result = Database::caricaDati($query, "s", $this->email);
         if ($row = $result->fetch_assoc()) {
             $this->dati['sigla'] = $row['sigla'];
             $this->dati['team'] = $row['team'];
@@ -62,8 +48,8 @@ final class Team extends Sezione {
             WHERE u.team = ?
             ORDER BY isLeader ASC, u.cognome, u.nome
         ";
-        $result = $this->caricaDati($query, "s", $this->dati['sigla']);
-        $this->fetchAndSanitize($result, 'membri');
+        $result = Database::caricaDati($query, "s", $this->team);
+        $this->fetchByResult($result, 'membri', true);
     }
 
     private function caricaResocontoAttivita() {
@@ -72,21 +58,22 @@ final class Team extends Sezione {
          * o ad esso assegnate, nelle varie board del team.
          * Se si è capoteam carica anche quelle degli altri membri del team.
          */
-        $query = $this->preparaStmtResoconto();
+        $query = $this->buildQueryResoconto();
         [$tipi, $params] = $this->paramsPerResoconto();
-        $result = $this->caricaDati($query, $tipi, ...$params);
+        $result = Database::caricaDati($query, $tipi, ...$params);
         $this->mydb->close();
         if ($result->num_rows !== 0) {
             $this->elaboraResoconto($result);
         }  
     }
 
-    private function preparaStmtResoconto() {
+    private function buildQueryResoconto() {
         $query = "
-            SELECT DISTINCT HEX(r.uuid_report), r.`timestamp`, 
-                r.attore, r.descrizione, r.link, r.utente, r.team, 
-                r.categoria, s.titolo, r.attore_era, r.bersaglio_era,
-                c.colore_hex, i.incaricato, p.progetto 
+            SELECT DISTINCT HEX(r.uuid_report) AS uuid_report, r.`timestamp` AS
+                `timestamp`, r.attore, r.descrizione, r.link, 
+                r.utente AS bersaglio, r.team AS team_responsabile, 
+                r.categoria as stato, s.titolo as titolo_scheda, r.attore_era, 
+                r.bersaglio_era, c.colore_hex, i.incaricato, p.progetto 
             FROM report r 
             LEFT JOIN progetti p 
                 ON p.id_progetto = r.progetto 
@@ -96,7 +83,6 @@ final class Team extends Sezione {
             LEFT JOIN info_schede i ON s.uuid_scheda = i.uuid_scheda 
             WHERE r.team = ?
         ";
-
         if ($this->user->isUtente()) {
             $query .= " AND (r.utente = ? OR i.incaricato = ?) ";
         }
@@ -126,30 +112,18 @@ final class Team extends Sezione {
     }
     
     private function elaboraResoconto($result) {
-        while ($row = $result->fetch_assoc()) {
-            $isBersaglioMe = ($row['utente'] === $this->email);
-            $isAttoreMe = ($row['attore'] === $this->email);
-            $isIncaricatoMe = ($row['incaricato'] === $this->email);
-            $this->dati['reports'][] = [
-                "uuid_report" => strtolower($row['HEX(r.uuid_report)']), 
-                "timestamp" => $row['timestamp'], 
-                "attore" => $row["attore"],
-                "descrizione" => $row["descrizione"],
-                "link" => $row["link"],
-                "bersaglio" => $row["utente"],
-                "team_responsabile" => $row["team"],
-                "stato" => $row['categoria'],
-                "titolo_scheda" => $row['titolo'],
-                "attore_era" => $row['attore_era'],
-                "bersaglio_era" => $row['bersaglio_era'],
-                "colore_hex" => $row['colore_hex'],
-                "incaricato" => $row['incaricato'],
-                "progetto" => $row['progetto'],
-                "isBersaglioMe" => $isBersaglioMe ? 1 : 0,
-                "isAttoreMe" => $isIncaricatoMe ? 1 : 0,
-                "isIncaricatoMe" => $isAttoreMe ? 1 : 0
-            ];
-        } 
+        $this->fetchByResult($result, 'reports');
+        foreach (array_keys($this->dati['reports']) as $i) {
+            $this->dati['reports'][$i]['isBersaglioMe'] =
+                ($this->dati['reports'][$i]['bersaglio'] === $this->email)
+                ? 1 : 0;
+            $this->dati['reports'][$i]['isAttoreMe'] =
+                ($this->dati['reports'][$i]['attore'] === $this->email)
+                ? 1 : 0;
+            $this->dati['reports'][$i]['isIncaricatoMe'] =
+                ($this->dati['reports'][$i]['incaricato'] === $this->email)
+                ? 1 : 0;
+        };
     }
 
 }

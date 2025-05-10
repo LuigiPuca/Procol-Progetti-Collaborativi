@@ -25,12 +25,12 @@ class Utente {
     private $email;
     private $ruolo;
     private $team;
-    private $mysqli;
+    private $mydb;
 
     # Costruttore di Utente. Prende in input l'UUID e la connessione al DB
     public function __construct($uuid, $mysqli) {
         $this->uuid = $uuid; //Assegna l'UUID all'attributo omonimo di this
-        $this->mysqli = $mysqli; //Assegna la connDB all'attributo della stessa
+        $this->mydb = $mysqli; //Assegna la connDB all'attributo della stessa
         $this->caricaDati();
     }
     private function caricaDati() {
@@ -40,7 +40,7 @@ class Utente {
             FROM utenti 
             WHERE `uuid` = UNHEX(?)
         ";
-        $stmt = $this->mysqli->prepare($query); // Prepara la query
+        $stmt = $this->mydb->prepare($query); // Prepara la query
         $stmt->bind_param('s', $this->uuid); // Associa l'UUID al placeholder
         $stmt->execute(); // Esegue la query
         $result = $stmt->get_result(); // Ottiene il risultato dalla query
@@ -48,11 +48,11 @@ class Utente {
         # Se esiste una riga nel risultato, allora...
         if ($row = $result->fetch_assoc()) {  
             # ... Assegna i valori dei campi agli attributi di this
-            $this->email =  $row['email'];
+            $this->email =  $row['email'] ?? null;
             $this->ruolo = $this->isGestoreDelTeam(
                 $row['email'], $row['ruolo'], $row['team']
             );
-            $this->team  = $row['team'];
+            $this->team  = $row['team'] ?? null;
         } else {
             # ... Altrimenti messaggio di errore
             Risposta::set('messaggio', "Errore: Utente non trovato.");
@@ -68,8 +68,11 @@ class Utente {
     private function isGestoreDelTeam($email, $ruolo, $team) {
         $stmt = null;
         try {
-            if ($ruolo === 'utente' || $ruolo === 'admin' || !$ruolo) {
-                return $ruolo ? $ruolo : "utente";
+            if (!$email || !in_array($ruolo,['utente', 'capo_team', 'admin'])) {
+                return null;
+            }
+            if (in_array($ruolo,['capo_team', 'admin']) || !$team) {
+                return ($ruolo !== 'capo_team') ? 'utente' : $ruolo;
             }
             $query = "
                 SELECT COUNT(*)
@@ -78,7 +81,7 @@ class Utente {
                 ON u.team = t.sigla AND t.responsabile = u.email
                 WHERE u.email = ? AND u.ruolo = 'capo_team'
             ";
-            $stmt = $this->mysqli->prepare($query); //Prepara la query
+            $stmt = $this->mydb->prepare($query); //Prepara la query
             $stmt->bind_param("s", $email); //Binda l'email al placeholder
             $stmt->execute(); //Esegue la query
             $stmt->store_result();
@@ -100,8 +103,8 @@ class Utente {
     public function getTeam() { return $this->team; }
 
     # Per verificare se l'utente è di uno specifico ruolo
-    public function isAdmin() { return $this->team === 'admin'; }
-    public function isCapoDelTeam() { return $this->team === 'capo_team'; }
-    public function isUtente() { return $this->team === 'utente'; }
+    public function isAdmin() { return $this->ruolo === 'admin'; }
+    public function isCapoDelTeam() { return $this->ruolo === 'capo_team'; }
+    public function isUtente() { return $this->ruolo === 'utente'; }
 }
 ?>

@@ -11,19 +11,26 @@ $dati = [];
 
 Risposta::unisciCon($altri_dati);
 
-$suffisso = Risposta::get('chi')['suffisso'] ?: "o";
+$suffisso = Risposta::get('chi')['suffisso'] ?? "o";
+
+if (!$altri_dati) {
+    Risposta::set('messaggio', "Accesso negato");
+    Risposta::jsonDaInviare();
+}
+
+require_once __DIR__ . "/../utils/ambiente.php";
 
 $sezione = null;
-foreach (['home','team','board','inesistente'] as $sezione){
-    if (isset($_POST[$sezione])) {
-        Risposta::set('sezione', $sezione);
-        $sezione = ucfirst($sezione);
-        break;
+foreach (['home', 'team', 'board', 'dashboard', 'dashfocus,'] as $valore) {
+    if (isset($dati_ricevuti[$valore])) {
+        Risposta::set('sezione', $valore);
+            $sezione = ucfirst($valore);
+            break;
     }
 }
 
 if (!$sezione) {
-    throw new Exception("Errore: Impossibile richiedere il servizio");
+    throw new Exception("Errore: Impossibile richiedere il servizio $contentType e $metodo?");
 }
 
 $user = new Utente($_SESSION['uuid_utente'], $mysqli);
@@ -36,6 +43,7 @@ $user_data = [
 
 Risposta::unisciCon($user_data);
 require_once __DIR__ . "/../models/$sezione.php";
+
 switch ($sezione) {
     case 'Home':
         Home::getIstanza($mysqli, $user);
@@ -45,16 +53,42 @@ switch ($sezione) {
         break;
     case 'Board':
         if (
-            !isset($_GET['proj']) ||
-            filter_var($_GET['proj'], FILTER_VALIDATE_INT) === false ||
-            $_GET['proj'] < 0
+            !isset($dati_ricevuti['proj']) ||
+            filter_var($dati_ricevuti['proj'], FILTER_VALIDATE_INT) === false ||
+            $dati_ricevuti['proj'] < 0
         ) {
             throw new Exception("Errore: La pagina &egrave; inesistente!");
         }
         Board::getIstanza($mysqli, $user, $_GET['proj']);      
         break;
+    case 'Dashboard': 
+        if (!$user->isAdmin()) {
+            throw new Exception(
+                "Accesso Negato: " . 
+                "stai per essere reindirizzat$suffisso."
+            );
+        }
+        Risposta::set('messaggio', 'Accesso Consentito.');
+        $dati_post = null;
+        if ($metodo !== 'GET') {
+            $dati_post = $dati_ricevuti;
+        }
+        Dashboard::getIstanza($mysqli, $user, $dati_post);      
+        break;
+    case 'Dashfocus':
+        if (!$user->isAdmin()) {
+            throw new Exception(
+                "Accesso Negato: " . 
+                "stai per essere reindirizzat$suffisso."
+            );
+        }
+        Risposta::set('messaggio', 'Richiesta Consentita.');
+        Dashfocus::getIstanza($mysqli, $user);
+        break;
+
+
     default:
-        throw new Exception("Il servizio richiesto è $session");
+        throw new Exception("Errore: Servizio richiesto $s non valido!");
 }
 
 

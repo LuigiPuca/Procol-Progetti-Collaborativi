@@ -2,7 +2,7 @@
 require_once __DIR__ . "/abstracts/Sezione.php";
 
 /**
- * Estende Sezione, e serve a recuperare i dati utili alla pagina Home
+ * Estende Sezione, e serve a recuperare i dati utili alla pagina Board
  */
 
 
@@ -10,13 +10,11 @@ final class Board extends Sezione {
     private int $progetto;
     private bool $isAccessoConsentito = false;
 
-    private function __construct(mysqli $db, Utente $user, int $progetto){
+    private function __construct(mysqli $db, Utente $user, int $progetto) {
         parent::__construct($db, $user);
         $this->progetto = $progetto;
         
         $this->msg .= " nella bacheca!";
-
-        
 
         $this->caricaInfoProgetto();
         $this->isAccessoConsentito = ($this->user->isAdmin()) 
@@ -24,8 +22,12 @@ final class Board extends Sezione {
             : $this->verificaAccesso();
         
         if ($this->isAccessoConsentito === false) {
-            throw new Exception("Errore: Progetto inaccessibile o inesistente");
+            throw new Exception("
+                Errore: Progetto inaccessibile o inesistente
+            ");
         }
+
+        $this->caricaProgetti($this->progetto); //a cui l'utente partecipa
 
         $this->dati['id_progetto'] = $this->progetto;
         
@@ -37,22 +39,16 @@ final class Board extends Sezione {
     }
 
     private function caricaInfoProgetto() {
-        $query = $this->preparaStmtInfoProgetto();
+        $query = $this->buildQueryInfoProgetto();
         [$tipi, $params] = $this->paramsPerInfoProgetto();
-        $result = $this->caricaDati($query, $tipi, ...$params);
+        $result = Database::caricaDati($query, $tipi, ...$params);
         if ($result->num_rows !== 1) {
             $result->free();
-            throw new Exception("Errore: Progetto inesistente o inaccessibile");
+            throw new Exception("
+                Errore: Progetto inesistente o inaccessibile
+            ");
         }
         $row = $result->fetch_assoc();
-        // $stmt = $this->mydb->prepare($query);
-        // $stmt->bind_param("si", $this->email, $this->progetto);
-        // $stmt->execute();
-        // $result = $stmt->get_result();
-        // if ($result->num_rows !== 1) {
-        //     $result->free();
-        //     throw new Exception("Errore: Progetto inesistente o inaccessibile");
-        // }
         $this->dati['progetto']['nome_progetto'] = $row['nome_progetto'];
         $this->dati['progetto']['descrizione_progetto'] = $row['descrizione'];
         $scadenza_progetto = new DateTime($row['scadenza_progetto']);
@@ -61,7 +57,7 @@ final class Board extends Sezione {
         $result->free();
     }
 
-    private function preparaStmtInfoProgetto() {
+    private function buildQueryInfoProgetto() {
         $query = ($this->user->isAdmin()) 
             ? "
                 SELECT DISTINCT progetto AS nome_progetto, 
@@ -100,7 +96,7 @@ final class Board extends Sezione {
         $stmt->bind_result($isAccessoConsentito);
         $stmt->fetch();
         $stmt->close();
-        return (bool) $isAccessoConsentito;
+        return (bool)$isAccessoConsentito;
     }
 
     private function caricaBacheca() {
@@ -112,7 +108,7 @@ final class Board extends Sezione {
         ";
         if ($this->user->isUtente()) $query .= " AND visibile = 1";
         $query .= " ORDER BY ordine_stati DESC";
-        $result = $this->caricaDati($query, "i", $this->progetto);
+        $result = Database::caricaDati($query, "i", $this->progetto);
         $this->dati['stati'] = [];
         # elabora le categorie e recupera schede per ogni categoria (stato)
         $this->elaboraBacheca($result);
@@ -142,7 +138,7 @@ final class Board extends Sezione {
             WHERE id_progetto = ? AND stato = ? 
             ORDER BY ordine_schede DESC
         ";
-        $result = $this->caricaDati(
+        $result = Database::caricaDati(
             $query, 'is', 
             $this->progetto, $stato_corrente['stato']
         );
@@ -166,16 +162,16 @@ final class Board extends Sezione {
          * o ad esso assegnate, nelle board corrente.
          * Se si è capoteam carica anche quelle degli altri membri del team.
          */
-        $query = $this->preparaStmtResoconto();
+        $query = $this->buildQueryResoconto();
         [$tipi, $params] = $this->paramsPerResoconto();
-        $result = $this->caricaDati($query, $tipi, ...$params);
+        $result = Database::caricaDati($query, $tipi, ...$params);
         $this->mydb->close();
         if ($result->num_rows !== 0) {
             $this->elaboraResoconto($result);
         }
     }
 
-    private function preparaStmtResoconto() {
+    private function buildQueryResoconto() {
         $query = "
             SELECT DISTINCT HEX(r.uuid_report), r.`timestamp`, 
                 r.attore, r.descrizione, r.link, r.utente, r.team, 

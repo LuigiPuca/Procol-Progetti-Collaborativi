@@ -1,10 +1,12 @@
 function richiestaEstrazioneInfo(){
     console.log("richiesta per estrazione info effettuata");
-    NuovaRichiestaHttpXML.mandaRichiesta('GET', 'services/dashboard.php', true, 'Content-Type', 'application/json', '', estrazioneInfo);
+    // era dashboard.php
+    NuovaRichiestaHttpXML.mandaRichiesta('GET', 'services/controllers/retrieve.php?dashboard', true, 'Content-Type', 'application/json', '', estrazioneInfo);
     setTimeout(() => {
         NuovaRichiestaHttpXML.verificaUtenteConnesso();
     }, 100);  
 }
+
 function esciDaDashboard() {
     NuovaRichiestaHttpXML.mandaRichiesta('POST', './services/controllers/logout.php', true, 'Content-Type', 'application/x-www-form-urlencoded', 'disconnessione=true&no_DB=true', esci);
 }
@@ -56,7 +58,8 @@ function estrazioneInfo() {
     }
     // Creo una variabile per memorizzare il messaggio di sistema
     let sm = rispostaServer.messaggio;
-    const info = rispostaServer.info;
+    const info = rispostaServer.dati;
+    console.log(info);
     if (!sm || sm.includes('negato')) {
         sm = sm ? "Accesso Negato: Sei stato reindirizzato!" : "Oops! Sembra ci sia un problema di connessione. Controlla la tua connessione a internet e al DB, e ricarica!";
         Notifica.appari({messaggioNotifica: sm, tipoNotifica: 'special-notifica'});
@@ -68,6 +71,7 @@ function estrazioneInfo() {
         Notifica.appari({messaggioNotifica: sm, tipoNotifica: 'special-errore-notifica'})
     }
     if (!rispostaServer.isAdmin) {
+        console.log(rispostaServer);
         localStorage.setItem('messaggio', 'Accesso negato: connessione assente o permessi non sufficiente a visualizzare la pagina!');
         localStorage.setItem('tipoMessaggio', 'info-notifica');
         window.location.href = 'portal.html';
@@ -78,27 +82,27 @@ function estrazioneInfo() {
         let infoTM = document.querySelectorAll('.tile h5')[2]; // numero di team creati
         let infoSC = document.querySelectorAll('.tile h5')[3]; // le schede attività create
         let infoPA = document.querySelectorAll('.tile h5')[4]; // il numero di progetti assegnati sui totali
-        infoUI.textContent = info[0];
-        infoUA.textContent = info[1];
-        infoTM.textContent = info[2];
-        infoSC.textContent = info[3];
-        infoPA.textContent = `${info[9]} / ${info[8]}`; // ci serve 
-        projDaDB = info[10]; 
+        infoUI.textContent = info['numero_utenti_iscritti'];
+        infoUA.textContent = info['numero_connessi_last24h'];
+        infoTM.textContent = info['numero_team_creati'];
+        infoSC.textContent = info['numero_commenti'];
+        infoPA.textContent = `${info['numero_progetti_con_team']} / ${info['numero_progetti']}`; // ci serve 
+        projDaDB = info['lista_progetti']; 
         verificaProgetti();
-        teamAssegnabili = info[11];
-        teamDaDB = info[12];
+        teamAssegnabili = info['team_assegnabili'];
+        teamDaDB = info['lista_team'];
         verificaTeam();
-        acDaDB = info[14];
+        acDaDB = info['schede_completate'];
         verificaAttivitaCompletate();
-        arDaDB = info[15];
+        arDaDB = info['schede_in_ritardo'];
         verificaAttivitaInRitardo();
     }
     // document.getElementById('isAdmin').textContent = rispostaServer.isAdmin ? 'Admin' : 'Non Admin';
     // document.getElementById('numero_utenti').innerHTML = '<br>' + info[0] + '<br>' + info[1] + '<br>' + info[2] + '<br>' + info[3] + '<br>' + info[4] + '<br>' + info[5] + '<br>' + info[6] + '<br>' + info[7] + "" + info[10];
-    giorniOrdinati = info[4];
-    valoriW1 = info[5];
-    valoriW2 = info[6];
-    valoriW3 = info[7];
+    giorniOrdinati = info['giorni_ordinati'];
+    valoriW1 = info['commenti_weekly'];
+    valoriW2 = info['schede_completate_weekly'];
+    valoriW3 = info['schede_in_ritardo_weekly'];
     disegnaGrafici();   
 }
 

@@ -324,21 +324,23 @@ function ricercaUtentiLiberi(primaOpzione = "", alreadyIn = "N/A") {
         recupera_team: alreadyIn
     };
     let datiJson = JSON.stringify(datiNonJson);
-    let opzioniRespAssegnabili = `<li role="option">${primaOpzione}</li>`
-    NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/dashboard.php", true, 'Content-Type', 'application/json', datiJson , ricercaTeam);
+    let opzioniRespAssegnabili = `<li role="option">${primaOpzione}</li>`;
+    //era dashboard.php
+    NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/controllers/retrieve.php?dashboard", true, 'Content-Type', 'application/json', datiJson , ricercaTeam);
     function ricercaTeam() {
         // console.log(xhr.responseText);
         const rispostaServer = JSON.parse(xhr.responseText);
         // Creo una variabile per memorizzare il messaggio di sistema
         const sm = rispostaServer.messaggio;
-        const info = rispostaServer.info;
+        const info = rispostaServer.dati;
         if (sm.includes('Errore') || sm.includes('negato')) {
             Notifica.appari({messaggioNotifica: sm, tipoNotifica: 'special-errore-notifica'})
         }
         if (!rispostaServer.isAdmin) {
-            window.location.href = 'portal.html';
+            console.log(rispostaServer);
+            window.location.href = 'portal.html'; 
         } else {
-            let respAssegnabili = info[13];
+            let respAssegnabili = info['utenti_assegnabili'];
             respAssegnabili.forEach(opzione => {
                 let anagraficaOpz = opzione['anagrafica']
                 let valoreOpz = opzione['email'];

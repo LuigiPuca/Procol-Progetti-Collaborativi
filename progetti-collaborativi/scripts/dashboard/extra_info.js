@@ -51,7 +51,7 @@ for (const chiave in mappaPulsanti) {
 function richiestaEstrazioneInfoExtra(parametro, page, sortBy = 'DESC') {
     // http://tuo-sito.com/pagina?resoconto=1&ordina=ASC&filtri[sessione]=1&filtri[utente]=1&filtri[team]=1
 
-    let queryString = `services/dashboard_extrainfo.php?${parametro}&pagina=${page}&ordina=${sortBy}`;
+    let queryString = `services/controllers/retrieve.php?dashfocus&${parametro}&pagina=${page}&ordina=${sortBy}`;
     filters.forEach((filtro, indice) => {
         queryString += `&filtri[${encodeURIComponent(filtro)}]=attivo`;
     });
@@ -62,7 +62,7 @@ function estrazioneInfoExtra() {
     // console.log('========',xhr.responseText);
     const rispostaServer = JSON.parse(xhr.responseText);
     // renderData(rispostaServer.info);
-    // console.log('questo é il:', rispostaServer.data);
+    // console.log('questo é il:', rispostaServer.dati);
     numeroPagine = rispostaServer.numeroPagine;
     paginaCorrente = rispostaServer.paginaCorrente;
     // console.log('questo é invece il numero di pagine totali:', rispostaServer.numeroPagine);
@@ -71,16 +71,17 @@ function estrazioneInfoExtra() {
     // Creo una variabile per memorizzare il messaggio di sistema
     const sm = rispostaServer.messaggio;
     // Estraiamo i valori dell'oggetto data
-    const values = Object.values(rispostaServer.data);
+    const values = Object.values(rispostaServer.dati);
     // Verificiamo se tutti i valori nell'array sono vuoti
     // const isEmpty = values.every(value => Array.isArray(value) && value.length === 0);
     if (sm.includes('Errore') || sm.includes('negato')) {
         Notifica.appari({messaggioNotifica: sm, tipoNotifica: 'special-errore-notifica'})
     }
     if (!rispostaServer.isAdmin) {
-        window.location.href = 'portal.html';
+        console.log(rispostaServer);
+        // window.location.href = 'portal.html';
     } else {
-        tempDataDaDB = rispostaServer.data;
+        tempDataDaDB = rispostaServer.dati;
     } 
 }
 
@@ -514,7 +515,7 @@ function generaHTMLReport(data, sort) {
 
     let isPrimaPiuRecente = (sort === 'DESC') ? "--opz-sort-attiva" : "";
     let isPrimaMenoRecente = (sort === 'ASC') ? "--opz-sort-attiva" : "";
-    let isTutti = (filters.length === 0) ? "--opz-filter-attiva" : "";
+    let isTutti = (filters.length === 0 || filters.length === 5) ? "--opz-filter-attiva" : "";
     let isOnlySessione = (filters.includes('sessione')) ? "--opz-filter-attiva" : "";
     let isOnlyUtente = (filters.includes('utente')) ? "--opz-filter-attiva" : "";
     let isOnlyTeam = (filters.includes('team')) ? "--opz-filter-attiva" : "";

@@ -22,18 +22,6 @@ final class Home extends Sezione {
         Risposta::jsonDaInviare();
     }
 
-    private function caricaProgetti() {
-        # query per controllare i progetti a cui l'utente partecipa
-        $query = "
-            SELECT p.id_progetto AS id, p.progetto AS nome_progetto 
-            FROM progetti p 
-            JOIN utenti u ON p.team_responsabile = u.team 
-            WHERE u.email = ?
-        ";
-        $result = $this->caricaDati($query, "s", $this->email);
-        $this->fetchAndSanitize($result, 'progetti');
-    }
-
     private function caricaSchede() {
         $query = "
             SELECT s.id_progetto AS id, HEX(s.uuid_scheda) AS uuid, 
@@ -41,8 +29,8 @@ final class Home extends Sezione {
             FROM schede s JOIN info_schede i ON s.uuid_scheda = i.uuid_scheda 
             WHERE i.incaricato = ?
         ";
-        $result = $this->caricaDati($query, "s", $this->email);
-        $this->fetchAndSanitize($result, 'schede_assegnate');
+        $result = Database::caricaDati($query, "s", $this->email);
+        $this->fetchByResult($result, 'schede_assegnate', true);
     }
 
     private function caricaResocontoAttivita() {
@@ -51,16 +39,16 @@ final class Home extends Sezione {
          * o ad esso assegnate, nelle varie board del team.
          * Se si è capoteam carica anche quelle degli altri membri del team.
          */
-        $query = $this->preparaStmtResoconto();
+        $query = $this->buildQueryResoconto();
         [$tipi, $params] = $this->paramsPerResoconto();
-        $result = $this->caricaDati($query, $tipi, ...$params);
+        $result = Database::caricaDati($query, $tipi, ...$params);
         $this->mydb->close();
         if ($result->num_rows !== 0) {
             $this->elaboraResoconto($result);
         }
     }
 
-    private function preparaStmtResoconto() {
+    private function buildQueryResoconto() {
         $query = "
             SELECT DISTINCT HEX(r.uuid_report), r.`timestamp`, 
                 r.attore, r.descrizione, r.link, r.utente, r.team, 

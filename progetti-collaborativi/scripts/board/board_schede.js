@@ -103,7 +103,7 @@ function addCategory(event) {
 }
 
 function rispostaBoardCRUD() {
-    // console.log(xhr.responseText);
+    console.log(xhr.responseText);
     const rispostaServer = JSON.parse(xhr.responseText);
     console.log('Richiesta per creazione categoria completata con successo');
     if (rispostaServer.isUtenteConnesso && !rispostaServer.isSessioneScaduta) {
@@ -251,7 +251,7 @@ function creaScheda(event) {
         }
         const jsonData = JSON.stringify(formDataObj);
         // mando una richiesta http
-        NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/board_crud.php", true, 'Content-Type', 'application/json', jsonData, rispostaBoardCRUD);
+        NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/controllers/crud.php?board_action", true, 'Content-Type', 'application/json', jsonData, rispostaBoardCRUD);
     } catch (errore) {
         console.trace("Errore DOM: " + errore.name+ "\nMessaggio: " + errore.message + "\nStack: " + errore.stack);
         Notifica.appari({messaggioNotifica: "Errore DOM: " + errore.message, tipoNotifica: "special-errore-notifica"});
@@ -280,6 +280,6 @@ function creaCategoria(event){
     }
     const jsonData = JSON.stringify(formDataObj);
     // mando una richiesta http
-    NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/board_crud.php", true, 'Content-Type', 'application/json', jsonData, rispostaBoardCRUD);
+    NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/controllers/crud.php?board_action", true, 'Content-Type', 'application/json', jsonData, rispostaBoardCRUD);
 }
 

@@ -19,6 +19,16 @@ class Risposta {
         return self::$daInviare[$chiave] ?? null;
     }
 
+    public static function push(
+        $valore, string $chiave = 'errori', ?string $subchiave = null
+    ): void {
+        if ($subchiave) {
+            self::$daInviare[$chiave][$subchiave] = $valore;
+        } else {
+            self::$daInviare[$chiave][] = $valore;
+        }
+    }
+
     public static function all(): array {
         return self::$daInviare;
     }

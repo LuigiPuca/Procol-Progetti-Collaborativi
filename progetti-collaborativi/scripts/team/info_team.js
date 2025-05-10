@@ -105,6 +105,11 @@ function update(elDiArray, tipologia, contenitore) {
 
 function aggiornoReport(uuid_report, timestamp, attore, descrizione, link, bersaglio, team_responsabile, stato, attore_era, bersaglio_era, colore_hex, titolo_scheda, isBersaglioMe, isAttoreMe, incaricato, isIncaricatoMe, progetto) {
     let resoconto;
+    // let parti = {
+    //     soggetto : (attore ? (isAttoreMe ? "" : attore) : "<del>" + attore_era + "</del>"),
+    //     ausiliare: [(isAttoreMe ? "Hai " : "ha "),(isAttoreMe ? "Ti sei ")]
+
+    // }
     if (!attore) attore = "<del>" + attore_era + "</del>";
     if (!bersaglio) bersaglio = "<del>" + bersaglio_era.split("-")[0] + "</del>";
     const realBersaglio = bersaglio;

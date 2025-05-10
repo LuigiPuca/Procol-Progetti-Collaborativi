@@ -76,7 +76,7 @@ function mandaRichiestaProj(operazione, subStrings, subStrings2 = null) {
     const jsonData = subStrings2 ? 
         JSON.stringify({ operazione: operazione, id_progetto: subStrings[1], categoria: subStrings[2], categoriaTarget: subStrings2[2] }) :
         JSON.stringify({ operazione: operazione, id_progetto: subStrings[1], categoria: subStrings[2] });
-    NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/board_crud.php", true, 'Content-Type', 'application/json', jsonData, rispostaBoardCRUD);
+    NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/controllers/crud.php?board_action", true, 'Content-Type', 'application/json', jsonData, rispostaBoardCRUD);
 }
 
 function operazioneCategoria(self, operazione, titoloBox, subMsgBox, testoOk, erroreGenerico) {

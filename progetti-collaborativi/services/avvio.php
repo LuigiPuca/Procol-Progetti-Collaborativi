@@ -38,6 +38,7 @@ $no_DB = (
 if(!$no_DB) {
     require_once __DIR__ . '/core/Database.php';
     $mysqli = (Database::getIstanza())->getDataBaseConnesso();
+    require_once __DIR__ . '/core/Permessi.php';
 }
 
 
