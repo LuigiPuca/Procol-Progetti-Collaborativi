@@ -99,9 +99,9 @@ let Form = {
 
     _eliminaTupla() {
         let submit = this.submit;
-        if (submit.name.startsWith('edit')) {
+        if (submit.name.startsWith('aggiorna')) {
             console.log('ho premuto elimina tupla');
-            submit.name = submit.name.replace("edit", "delete");
+            submit.name = submit.name.replace("aggiorna", "elimina");
             submit.disabled = false;
             this.selectorID.disabled = false;
             if (!submit.disabled) {
@@ -291,10 +291,19 @@ let Form = {
         // non voglio aprire una pagina php quindi blocco il comportamento di default del submit...
         event.preventDefault();
         // ...catturo i suoi dati in un oggetto FormData che peró non cattura il tasto di submit
+        const form = event.target;
         const formData = new FormData(event.target);
         // ... e quindi lo aggiungiamo manualmente 
-        let submit = event.target.querySelector('input[type=submit]');
-        formData.append(submit.name, "Invia");
+        let submit = form.querySelector('input[type=submit]');
+        if (submit && submit.name) {
+            formData.append("operazione", submit.name);
+        } else {
+            return;
+        }
+
+        // Recupera l'URL dal form (action)
+        const url = ("./" + form.getAttribute('action')) || './services/controllers/crud.php';
+        
         // ... con questo campo verifico nella console se i dati che sto per inviare sono esatti      
         // formData.forEach(function(value, key){
         //     console.log(key, value);
@@ -308,10 +317,11 @@ let Form = {
         // Convertiamo l'oggetto JavaScript in una stringa JSON
         const jsonData = JSON.stringify(formDataObj);
         // ... mando una richiesta http
-        NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/dashboard_crud.php", true, 'Content-Type', 'application/json', jsonData, this._verificaRisposta);
+        NuovaRichiestaHttpXML.mandaRichiesta("POST", url, true, 'Content-Type', 'application/json', jsonData, this._verificaRisposta);
     },
 
     _verificaRisposta() {
+        console.log(xhr.responseText);
         // console.log(xhr.responseText);
         const rispostaServer = JSON.parse(xhr.responseText);
         let sm = rispostaServer.messaggio;

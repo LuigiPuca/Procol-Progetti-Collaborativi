@@ -16,8 +16,12 @@ require_once __DIR__ . "/../utils/sanitizzazione.php";
 require_once __DIR__ . "/../utils/ambiente.php";
 
 require_once __DIR__ . "/../models/Categoria.php";
+require_once __DIR__ . "/../models/Scheda.php";
+require_once __DIR__ . "/../core/UserManager.php";
+require_once __DIR__ . "/../core/TeamManager.php";
+require_once __DIR__ . "/../core/ProjManager.php";
 
-$user = new Utente($_SESSION['uuid_utente'], $mysqli);
+$user = Utente::caricaByUUID($_SESSION['uuid_utente']);
 
 $user_data = [
     'ruolo' => $user->getRuolo(),
@@ -28,9 +32,18 @@ $user_data = [
 Risposta::unisciCon($user_data);
 
 match (true) {
-    isset($dati_ricevuti['board_action']) => 
+    array_key_exists('board_action', $dati_ricevuti) => 
         Categoria::getIstanza($mysqli, $user, $dati_ricevuti),
+    array_key_exists('activity_action', $dati_ricevuti) => 
+        Scheda::getIstanza($mysqli, $user, $dati_ricevuti),
+    array_key_exists('user_action', $dati_ricevuti) => 
+        UserManager::checkDatiRicevuti($user, $dati_ricevuti),
+    array_key_exists('team_action', $dati_ricevuti) => 
+        TeamManager::checkDatiRicevuti($user, $dati_ricevuti),
+    array_key_exists('proj_action', $dati_ricevuti) => 
+        ProjManager::checkDatiRicevuti($user, $dati_ricevuti),
     default => throw new Exception("Errore: Nessuna azione riconosciuta")
+
 };
 
 

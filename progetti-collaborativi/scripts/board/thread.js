@@ -144,7 +144,7 @@ function operazioneMenuScheda(e) {
                     gridEl.classList.add(sezInApertura);
                     let datiDaPassare = { operazione: operazione, id_progetto: subStrGrid[1], categoria: subStrGrid[2], uuid_scheda: subStrGrid[3]};
                     const jsonData = JSON.stringify(datiDaPassare);
-                    NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/posts.php", true, 'Content-Type', 'application/json', jsonData, rispostaPostsCRUD.bind(this, true));
+                    NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/controllers/crud.php?activity_action", true, 'Content-Type', 'application/json', jsonData, rispostaPostsCRUD.bind(this, true));
                     break;
                 }
             }
@@ -204,7 +204,7 @@ function gestisciCommento(self) {
             allOk: function() {
                 let datiDaPassare = { operazione: 'elimina-commento', id_progetto: subStrGrid[1], categoria: subStrGrid[2], uuid_scheda: subStrGrid[3], uuid_commento: subStrReply[1]};
                 const jsonData = JSON.stringify(datiDaPassare);
-                NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/posts.php", true, 'Content-Type', 'application/json', jsonData, rispostaPostsCRUD);
+                NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/controllers/crud.php?activity_action", true, 'Content-Type', 'application/json', jsonData, rispostaPostsCRUD);
                 console.log("Hai premuto elimina commento");
             }  
         });
@@ -387,13 +387,13 @@ function mandaRisposta(chiave, selettore, event) {
     // Convertiamo l'oggetto JavaScript in una stringa JSON
     // ... mando una richiesta http
     const jsonData = JSON.stringify(formDataObj);
-    NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/posts.php", true, 'Content-Type', 'application/json', jsonData, rispostaPostsCRUD );
+    NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/controllers/crud.php?activity_action", true, 'Content-Type', 'application/json', jsonData, rispostaPostsCRUD );
 }
 
 function rispostaPostsCRUD(isObtainMode) {
     let currentUrl = new URL(window.location.href);
     try {
-        // console.log(xhr.responseText);
+        console.log(xhr.responseText);
         let rispostaServer;
         if(!(rispostaServer = JSON.parse(xhr.responseText))) throw new Error(erroreGenerico);
         if(rispostaServer['messaggio'].includes('visualizzare')) {
@@ -428,7 +428,7 @@ function rispostaPostsCRUD(isObtainMode) {
 }
 
 function obtainPer(dati, sezDaRiempire, formDaCreare, opSuccessiva) {
-    let elHTML = (opSuccessiva) ? `<form action="/services/posts.php" method="post" id="${formDaCreare}">` : `<div id="${formDaCreare}">`;
+    let elHTML = (opSuccessiva) ? `<form action="/services/controllers/crud.php?activity_action" method="post" id="${formDaCreare}">` : `<div id="${formDaCreare}">`;
     if (formDaCreare === "--assign-form") {
         elHTML += `<h1>Incarica Membro</h1>
             <p>Assegna l'utente incaricato al progresso della scheda.</p>
@@ -477,6 +477,8 @@ function obtainPer(dati, sezDaRiempire, formDaCreare, opSuccessiva) {
         let isChiusa = (dati.stato !== "Completate") ? "disabled" : "";
         let isChecked = (dati.scadenza) ? "checked" : "";
         let isDisabled = (!dati.scadenza) ? "disabled" : "";
+        console.log("////");
+        console.log(dati);
         let defaultDataInizio = (dati.inizio) ? dati.inizio.replace(/_/g,"T") : daOggi();
         let defaultDataScadenza = (dati.scadenza) ? dati.scadenza.replace(/_/g,"T") : daOggi(0, 0, 0, 0, 5, 0);
         let defaultDataFine = (dati.fine) ? dati.fine.replace(/_/g,"T") : daOggi(0, 0, 0, 0, 5, 0);
@@ -695,7 +697,7 @@ function sendForm(operazione, event) {
     // Convertiamo l'oggetto JavaScript in una stringa JSON
     // ... mando una richiesta http
     const jsonData = JSON.stringify(formDataObj);
-    NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/posts.php", true, 'Content-Type', 'application/json', jsonData, rispostaPostsCRUD );
+    NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/controllers/crud.php?activity_action", true, 'Content-Type', 'application/json', jsonData, rispostaPostsCRUD );
 }
 
 function sanitizzaInput(testoInput) {

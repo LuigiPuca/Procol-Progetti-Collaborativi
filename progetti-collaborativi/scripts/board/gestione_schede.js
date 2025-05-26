@@ -136,8 +136,14 @@ function eliminaScheda(self) {
             testoOk: `${testoOk}`,
             testoNo: "Annulla",
             allOk: function() {
-                NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/posts.php", true, 'Content-Type', 'application/json', jsonData, rispostaBoardCRUD);
-                minimizzaScheda();
+                NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/controllers/crud.php?activity_action", true, 'Content-Type', 'application/json', jsonData, rispostaBoardCRUD);
+                const overlayContainer = document.querySelector('.overlay-container');
+                overlayContainer.classList.add("--closing");
+                const el = document.querySelector('.overlay-container');
+                const style = window.getComputedStyle(el);
+                if (style.display !== "none") {
+                    minimizzaScheda();
+                }
                 console.log("Hai premuto Elimina Scheda Attività");
             },  
         });  
@@ -173,7 +179,7 @@ function spostaScheda(self, direzione) {
             testoOk: "Sposta",
             testoNo: "Annulla",
             allOk: function() {
-                NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/posts.php", true, 'Content-Type', 'application/json', jsonData, rispostaBoardCRUD);
+                NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/controllers/crud.php?activity_action", true, 'Content-Type', 'application/json', jsonData, rispostaBoardCRUD);
                 console.log(`Hai premuto Sposta Scheda ${direzione}`);
             }
         });
@@ -197,7 +203,7 @@ function massimizzaScheda(self){
         let currentUrl = new URL(window.location.href);
         currentUrl.search = `proj=${subProjStrings[1]}&post=${subPostStrings[1]}`;
         window.history.pushState({}, '', currentUrl);
-        NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/posts.php", true, 'Content-Type', 'application/json', jsonData, rispostaPosts);
+        NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/controllers/crud.php?activity_action", true, 'Content-Type', 'application/json', jsonData, rispostaPosts);
     } catch (errore) {
         console.trace("Errore DOM: " + errore.name+ "\nMessaggio: " + errore.message + "\nStack: " + errore.stack);
         Notifica.appari({messaggioNotifica: "Errore DOM: " + errore.message, tipoNotifica: "special-errore-notifica"});

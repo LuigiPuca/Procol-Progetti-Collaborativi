@@ -813,7 +813,7 @@ try {
                     $stmt_new->bind_param("is", $progetto, $new_stato);
                     $stmt_new->execute();
                     $stmt_new->store_result();
-                    if ($stmt_new->num_rows !== 1) throw new mysqli_sql_exception("Categoria a inesistente o inaccessibile!");
+                    if ($stmt_new->num_rows !== 1) throw new mysqli_sql_exception("Categoria inesistente o inaccessibile!");
                     $stmt_new->bind_result($new_stato);
                     $stmt_new->fetch();
                     $stmt_new->close();

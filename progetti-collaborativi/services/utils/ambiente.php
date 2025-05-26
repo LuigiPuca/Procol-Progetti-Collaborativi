@@ -5,7 +5,7 @@ $params_passati = null;
 $metodo = $_SERVER["REQUEST_METHOD"] ?? '';
 $contentType = $_SERVER["CONTENT_TYPE"] ?? '';
 
-if (strpos($_SERVER["CONTENT_TYPE"], "application/json") !== false) {
+if (isset($_SERVER["CONTENT_TYPE"]) && strpos($_SERVER["CONTENT_TYPE"], "application/json") !== false) {
     # Se la richiesta è fatta con JSON, elaboriamo i dati JSON per aggiornare $_POST 
     # altrimenti procediamo come di norma
     $jsonData = file_get_contents('php://input');

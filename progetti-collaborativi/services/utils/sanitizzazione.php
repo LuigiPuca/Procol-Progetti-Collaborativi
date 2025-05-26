@@ -1,4 +1,15 @@
 <?php
+function checkDatiInviati(...$args) {
+        $error = 
+            "Errore: Si &egrave; verificato un problema nell'invio " . 
+            "dei dati necessari per il completamento dall'azione!";
+        foreach ($args as $arg) {
+            if (!$arg) {
+                throw new Exception($error);
+            }
+        };
+}
+
 
 # utilizza splat operator per verificare campi multipli
 function checkEmpty(...$args) : bool {
@@ -40,6 +51,7 @@ function checkEmail(...$emails): bool {
     /x";
     foreach($emails as $email) {
         if(!is_string($email)) {
+            Risposta::set("inc", $email);
             throw new InvalidArgumentException;
         }
         if(!preg_match($pattern, $email)) return false;
@@ -120,6 +132,102 @@ function checkHexColor(...$colori) {
             throw new InvalidArgumentException;
         }
         if (!preg_match($pattern, $colore)) { return false; }
+    }
+    return true;
+}
+
+function checkUUIDs(...$uuids) {
+    $pattern = "/                         
+        ^                                 # Inizio della stringa
+        [0-9a-fA-F]{32}                   # 32 caratteri hex
+        $                                 # Fine della stringa
+    /x";
+    foreach ($uuids as $uuid) {
+        if (!is_string($uuid)) {
+            throw new InvalidArgumentException;
+        }
+        if (!preg_match($pattern, $uuid)) { return false; }
+    }
+    return true;
+}
+
+function checkDateTime(...$date) {
+    # decide se voglio il pattern flessibile o meno
+    $flexibile = false; 
+
+    # controlla l'ultima variabile se é un booleano
+    if (is_bool(end($date))) {
+        $flexibile = array_pop($date); // estrae l'ultimo elemento
+    }
+
+    # pattern rigido: YYYY-MM-DD HH:MM:SS
+    $pattern = "/
+        ^                                       # Inizio della stringa
+        \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}     # YYYY-MM-DD HH:MM:SS
+        $                                       $ Fine della stringa
+    /x";
+
+    # Pattern flessibile: accetta anche formati parziali
+    $flexiblePattern = "/
+        ^\d{4}-\d{2}-\d{2}?                     # Data obbligatoria
+        (?:\s\d{2})?                            # Ora opzionale
+        (?::\d{2})?                             # Minuti opzionali
+        (?::\d{2})?                             # Secondi opzionali
+        $                                       # Fine della stringa
+    /x";
+
+    $pattern = !$flexibile ? $pattern : $flexiblePattern; 
+
+    foreach ($date as $data) {
+        if (!is_string($data)) {
+            throw new InvalidArgumentException;
+        }
+        if (!preg_match($pattern, $data)) { return false; }
+    }
+    return true;
+}
+
+function checkSiglaTeam(...$sigle) {
+    $pattern = "/^[A-Z0-9]{1,3}$/";
+    foreach ($sigle as $sigla) {
+        if (!is_string($sigla)) {
+            throw new InvalidArgumentException;
+        }
+        if (!preg_match($pattern, $sigla)) { return false; }
+    }
+    return true;
+}
+
+function checkElNames(int $min_char = 1, int $max_char = 20, ...$nomi) {
+    $min = ($min_char > 0) ? ($min_char - 1) : 0; 
+    $max = ($max_char > $min_char) ? ($max_char - 2) : $min_char + 1 ;
+    $range= "{" . $min . "," . $max . "}";
+    $pattern = "/
+    ^
+        [a-zA-ZÀ-ÿ]                   # primo carattere anche accentato
+        (?:                           # inizio gruppo opzionale
+            [a-zA-ZÀ-ÿ\'\s]$range     # fino a 18 caratteri, spazi o apostrofi
+            [a-zA-ZÀ-ÿ]               # ultimo carattere anche accentato
+        )?                            # fine gruppo opzionale
+    $                                 # fine della stringa
+    /x";
+    foreach ($nomi as $nome) {
+        if (!is_string($nome)) {
+            throw new InvalidArgumentException;
+        }
+        if (!preg_match($pattern, $nome)) { return false; }
+    }
+    return true;
+}
+
+function checkCharRange(int $min_char = 0, int $max_char = 255, ...$strings) {
+    $range= "{" . $min_char . "," . $max_char . "}";
+    $pattern = "/^.$range$/";
+    foreach ($strings as $string) {
+        if (!is_string($string)) {
+            throw new InvalidArgumentException;
+        }
+        if (!preg_match($pattern, $string)) { return false; }
     }
     return true;
 }

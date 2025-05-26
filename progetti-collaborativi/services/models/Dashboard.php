@@ -177,7 +177,7 @@ final class Dashboard extends Sezione {
                 'admin' => "{A}", 'capo_team' => "{C}", default => "{U}"
             };
             $anagrafica = "$ruolo " . $row['anagrafica'];
-            $new_row = ['anagrafica' => $anagrafica, 'email'];
+            $new_row = ['anagrafica' => $anagrafica, 'email' => $row['email']];
             $dati[] = $new_row;
         }
         return $dati;

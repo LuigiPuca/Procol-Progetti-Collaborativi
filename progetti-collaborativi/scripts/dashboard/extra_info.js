@@ -59,8 +59,11 @@ function richiestaEstrazioneInfoExtra(parametro, page, sortBy = 'DESC') {
 }
 
 function estrazioneInfoExtra() {
-    // console.log('========',xhr.responseText);
+    console.log("///");
+    console.log(xhr.responseText);
+    
     const rispostaServer = JSON.parse(xhr.responseText);
+    console.info(rispostaServer);
     // renderData(rispostaServer.info);
     // console.log('questo é il:', rispostaServer.dati);
     numeroPagine = rispostaServer.numeroPagine;
@@ -79,7 +82,7 @@ function estrazioneInfoExtra() {
     }
     if (!rispostaServer.isAdmin) {
         console.log(rispostaServer);
-        // window.location.href = 'portal.html';
+        window.location.href = 'portal.html';
     } else {
         tempDataDaDB = rispostaServer.dati;
     } 
@@ -362,7 +365,6 @@ function mostraContenutoOverlay(tipo) {
         pagina && presente && isPaginaValida ? parametroAs(`${stringaTipo}&pagina=${pagina}`) : parametroAs(stringaTipo);
         overlayZoom.classList.add('--zoomed');
         let elCliccato = this;
-        console.log('ahahahha giusto?')
         console.log(elCliccato);
         noanimazione ? null : animazioneAlClick(elCliccato);
         noanimazione = false;

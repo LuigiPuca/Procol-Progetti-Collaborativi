@@ -654,10 +654,12 @@
     color: grey;
 }
 
-details.comment summary::-webkit-details-marker, details.comment summary::marker {
-    display: none;
-    content: "";
+details.comment summary::marker,
+:is(details.comment summary::-webkit-details-marker) {
+  display: none;
+  content: "";
 }
+
 
 .comment-container {
     display: block;
@@ -711,7 +713,7 @@ details.comment summary::-webkit-details-marker, details.comment summary::marker
 } */
 
 .comment {
-    display: flex;
+    /* display: flex; */
     width: 100%;
     max-width: 100%;
     height: min-content; 

@@ -172,25 +172,6 @@ require_once __DIR__ . "/Singleton.php";
         }
     }
 
-    protected function deleteTupla(
-        string $nome_tabella, ?string $condizione = null,
-        ?string $tipi = null, ...$params
-    ): void {
-        if ($condizione === null) {
-            throw new Exception("Scegliere una condizione per eliminare!");
-        }
-        $query = "DELETE FROM $nome_tabella WHERE $condizione";
-        $stmt = Database::eseguiStmt($query, $tipi, ...$params);
-        if ($stmt instanceof mysqli_stmt) {
-            $stmt->close();
-        } elseif ($stmt === false) {
-            throw new Exception(
-                "Errore nella query DELETE: " . $this->mydb->error
-            );
-        }
-    }
-    
-
     protected function getArrayResult( 
         string $query, bool $withSanitize = false
     ): array {
@@ -225,7 +206,7 @@ require_once __DIR__ . "/Singleton.php";
     ): void { 
         if ($chiave) { Risposta::push($chiave, 'dati'); }
         while ($row = $result->fetch_assoc()) {
-            $row = $withSanitize ? $this->sanitizeTupla($row) : $row;
+            $row = $withSanitize ? Database::sanitizzaTupla($row) : $row;
             $chiave ? $this->dati[$chiave][] = $row : $this->dati[] = $row; 
         }
         unset($row);
@@ -235,19 +216,6 @@ require_once __DIR__ . "/Singleton.php";
         foreach ($info as $key => $value) {
             Risposta::push($value, 'dati', $key);
         }
-    }
-
-    protected function sanitizeTupla($row) {
-        foreach ($row as $key => $value) {
-            if (is_string($value)) {
-                $value = strip_tags($value); // rimuove i tag html 
-                # converte caratteri speciali in entità html
-                $row[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
-            } else {
-                $row[$key] = $value; // lascia intatti numeri, null, ecc.
-            }
-        }
-        return $row;
     }
 }
 

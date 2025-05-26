@@ -1,7 +1,17 @@
 function gestisciUtente(bottone, operazione, team = null) {
     noanimazione = true;
     // console.log(bottone);
-    const checkboxAttivi = document.querySelectorAll('.lista-utenti td input[type="checkbox"]:checked');
+    let checkboxAttivi = null;
+    let tabRefresh = null; //tabella da ricaricare
+    if (document.querySelector('.lista-utenti')) {
+        checkboxAttivi = document.querySelectorAll('.lista-utenti td input[type="checkbox"]:checked');
+        tabRefresh = utentiSub;
+    } else if (document.querySelector('.lista-utenti-online')) {
+        checkboxAttivi = document.querySelectorAll('.lista-utenti-online td input[type="checkbox"]:checked');
+        tabRefresh = utentiOn;
+    } else {
+        console.log('fottiti');
+    }
     const dati = {
         operazione: operazione,
         emails: []
@@ -26,22 +36,22 @@ function gestisciUtente(bottone, operazione, team = null) {
                 // console.log(`Sto eseguendo l'operazione ${operazione}`, dati);
                 const jsonData = JSON.stringify(dati);
                 // console.log("Che sono diventati", jsonData);
-                NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/dashboard_crud.php", true, 'Content-Type', 'application/json', jsonData, verificaOperazione);
+                NuovaRichiestaHttpXML.mandaRichiesta("POST", "./services/controllers/crud.php?user_action", true, 'Content-Type', 'application/json', jsonData, verificaOperazione);
 
                 function verificaOperazione() {
-                    // console.log("================================");
-                    // console.log(xhr.responseText);
+                    console.log("================================");
+                    console.log(xhr.responseText);
                     const rispostaServer = JSON.parse(xhr.responseText);
                     const sm = rispostaServer.messaggio;
                     richiestaEstrazioneInfoExtra();
-                    utentiSub.click();
+                    tabRefresh.click();
                     if (sm.includes('Errore') || sm.includes('negato')) {
                         Notifica.appari({ messaggioNotifica: sm, tipoNotifica: 'special-errore-notifica' });
                     } else if (sm.includes('Successo')) {
                         Notifica.appari({ messaggioNotifica: sm, tipoNotifica: 'special-successo-notifica' });
                     }
                     if (!rispostaServer.isAdmin) {
-                        window.location.href = 'portal.html';
+                        // window.location.href = 'portal.html';
                     }
                 }
             },
@@ -70,7 +80,7 @@ function declassaUtente(bottone) {
 }
 
 function rimuoviUtenteDaTeam(bottone) {
-    gestisciUtente(bottone, "rimuovi dal team");
+    gestisciUtente(bottone, "caccia");
 }
 
 function assegnaUtenteAlTeam(bottone) {
@@ -78,7 +88,7 @@ function assegnaUtenteAlTeam(bottone) {
     if (valoreTeamSelezionato.value.includes('|')) {
         let valori = valoreTeamSelezionato.value.split('|');
         let sigla = valori[0].trim();
-        gestisciUtente(bottone, "aggiungi al team", sigla);
+        gestisciUtente(bottone, "coinvolgi", sigla);
     } else {
         Notifica.appari({ messaggioNotifica: 'Errore: Devi selezionare un team valido', tipoNotifica: 'special-attenzione-notifica' });
     }
@@ -154,7 +164,7 @@ function toggleFiltri(stringa) {
 }
 
 function stringheDiConferma(operazione) {
-    let operazioni = ['elimina', 'promuovi', 'declassa', 'rimuovi dal team', 'aggiungi al team'];
+    let operazioni = ['elimina', 'promuovi', 'declassa', 'caccia', 'coinvolgi'];
     const posizione = operazioni.indexOf(operazione);
     let titoli = [
         "Eliminazione Utenti",

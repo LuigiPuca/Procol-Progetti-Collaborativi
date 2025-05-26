@@ -3,6 +3,19 @@
  * La creazione e la connessione al database può essere fatta attraverso il
  * seguente Singleton. In questo modo si garantisce al più una sola 
  * connessione.
+ * Nelle ultime versioni di PHP, essendo mysqlnd di default attivo, invece di
+ * di store_result(), num_rows() nell'if, fetch() nel while, e il
+ * bind_result($email, $ruolo, $team), è consigliabile usare get_result(), 
+ * fetch_assoc() nel while, num_rows() nell if, e avere i campi corrispondente 
+ * alle chiavi dell'array associativo. Ciò permette di rispare righe di codice.
+ * Nel caso in cui bisogna verificare un solo risultato con una colonna, ad
+ * esempio nei count, va bene usare il bind_result().
+ * Se num_rows() ha la stessa capacità in entrambe le versioni, si evince come
+ * invece fetch_assoc() non restituisce vero o falso come farebbe fetch() ma 
+ * restituisce un array associativo con i campi del database come chiavi.
+ * Ciò ci risparmia di passare per l'operazione di binding.
+ * In realtà, bind_result() funziona con get_result(), ma è a questo punto 
+ * inutile non necessitando di chiamare store_result().
  */ 
 
 final class Database {
@@ -212,19 +225,86 @@ final class Database {
     public static function deleteTupla(
         string $nome_tabella, ?string $condizione = null,
         ?string $tipi = null, ...$params
-    ): void {
+    ): int {
         if ($condizione === null) {
             throw new Exception("Scegliere una condizione per eliminare!");
         }
         $query = "DELETE FROM $nome_tabella WHERE $condizione";
         $stmt = self::eseguiStmt($query, $tipi, ...$params);
         if ($stmt instanceof mysqli_stmt) {
-            Database::liberaRisorsa($stmt);
+            $num = $stmt->affected_rows;
+            self::liberaRisorsa($stmt);
+            return $num;
         } elseif ($stmt === false) {
-            throw new Exception(
+            throw new mysqli_sql_exception(
                 "Errore nella query DELETE: " . self::$mysqli->error
             );
         }
+    }
+
+    public static function updateTupla(
+        string $nome_tabella, string $imposta, ?string $condizione = null,
+        ?string $tipi = null, ...$params
+    ): int {
+        if ($condizione === null) {
+            throw new Exception("Scegliere una condizione per aggiornare!");
+        }
+        $query = "UPDATE $nome_tabella SET $imposta WHERE $condizione";
+        $stmt = self::eseguiStmt($query, $tipi, ...$params);
+        if ($stmt instanceof mysqli_stmt) {
+            $num = $stmt->affected_rows;
+            self::liberaRisorsa($stmt);
+            return $num;
+        } elseif ($stmt === false) {
+            throw new mysqli_sql_exception(
+                "Errore nella query UPDATE: " . self::$mysqli->error
+            );
+        }
+    }
+
+    public static function createTupla(
+        string $nome_tabella, ?string $campi = null, 
+        ?string $valori = null, ?string $tipi = null, ...$params
+    ): int {
+        if ($campi === null || $valori === null) {
+            throw new Exception(
+                "Scegliere campi e valori per creare una nuova riga!"
+            );
+        }
+        $query = "INSERT INTO $nome_tabella ($campi) VALUES ($valori);";
+        $stmt = self::eseguiStmt($query, $tipi, ...$params);
+        if ($stmt instanceof mysqli_stmt) {
+            $num = $stmt->affected_rows;
+            self::liberaRisorsa($stmt);
+            return $num;
+        } elseif ($stmt === false) {
+            throw new mysqli_sql_exception(
+                "Errore nella query INSERT INTO: " . self::$mysqli->error
+            );
+        }
+    }
+
+    public static function sanitizzaTupla($row): array {
+        foreach ($row as $key => $value) {
+            if (is_string($value)) {
+                $value = strip_tags($value); // rimuove i tag html 
+                # converte caratteri speciali in entità html
+                $row[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+            } else {
+                $row[$key] = $value; // lascia intatti numeri, null, ecc.
+            }
+        }
+        return $row;
+    }
+
+    /**
+     * Da usare solo dopo query di inserimento con chiave primaria 
+     * autoincrementante
+     * 
+     * @return int La chiave primaria della nuova tupla inserita
+     */
+    public static function lastInsertID(): int {
+        return (int)(self::$mysqli->insert_id);
     }
 
 }

@@ -21,7 +21,7 @@ if (!$altri_dati) {
 require_once __DIR__ . "/../utils/ambiente.php";
 
 $sezione = null;
-foreach (['home', 'team', 'board', 'dashboard', 'dashfocus,'] as $valore) {
+foreach (['home', 'team', 'board', 'dashboard', 'dashfocus'] as $valore) {
     if (isset($dati_ricevuti[$valore])) {
         Risposta::set('sezione', $valore);
             $sezione = ucfirst($valore);
@@ -33,7 +33,7 @@ if (!$sezione) {
     throw new Exception("Errore: Impossibile richiedere il servizio $contentType e $metodo?");
 }
 
-$user = new Utente($_SESSION['uuid_utente'], $mysqli);
+$user = Utente::caricaByUUID($_SESSION['uuid_utente']);
 
 $user_data = [
     'ruolo' => $user->getRuolo(),

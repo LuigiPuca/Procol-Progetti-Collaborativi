@@ -3,11 +3,10 @@
 require_once __DIR__ . "/abstracts/Sezione.php";
 
 /**
- * Estende Sezione, e serve a recuperare i dati extra inerenti alle sottosezioni
- * della pagina Dashboard, facendo un focus su di essi e all'occorrenza 
- * filtrando.
- * 
+ * Estende Sezione, e serve per definire le operazioni CRUD che riguardano 
+ * le categorie visibili nella sezione Board del sito.
  */
+
 final class Categoria extends Sezione {
     private ?string $operazione;
 
@@ -22,11 +21,12 @@ final class Categoria extends Sezione {
     private ?string $statoScheda;
     
 
-    private function __construct(mysqli $db, Utente $user, ?array $datiRicevuti) {
+    private function __construct(mysqli $db, Utente $user, ?array $datiRicevuti)
+    {
         parent::__construct($db, $user);
 
         if (empty($datiRicevuti) || !isset($datiRicevuti['operazione'])) {
-            throw new Exception("Dati non ricevuti");
+            throw new Exception("Dati non ricevuti!");
         }
         $this->msg = "";
         $this->operazione = $datiRicevuti['operazione'];
@@ -66,7 +66,7 @@ final class Categoria extends Sezione {
                 => $this->spostaCategoria(),
             'crea_scheda' => $this->creaScheda(),
             default => throw new Exception(
-                "Errore: Operazione non riconosciuta"
+                "Errore: Operazione non riconosciuta!"
             )
         };
 
@@ -114,7 +114,9 @@ final class Categoria extends Sezione {
         string $suClasse, array $args = []
     ): void {
         if (!in_array($suClasse, ['progetto', 'scheda'])) {
-            throw new Exception("Questa azione non può essere salvata su log");
+            throw new Exception(
+                "Questa azione non pu&ograve; essere salvata su log"
+            );
         }
 
         foreach ($args as $arg) {
@@ -222,10 +224,13 @@ final class Categoria extends Sezione {
      * Tenta l'avvio della procedura di ordinamento delle categorie.
      */
     private function ordinaSchede(string $titolo, string $azioneWas): void {
-        $query = "CALL OrdinaSchedeSelettivo(?)";
+        $query = "CALL OrdinaSchedeSelettivo(?, ?)";
         $stmt = null;
+        
         try {
-            $stmt = Database::eseguiStmt($query, "i", $this->idProj);
+            $stmt = Database::eseguiStmt(
+                $query, "is", $this->idProj, $this->statoScheda
+            );
             Database::liberaRisorsa($stmt);
         } catch (Throwable $e) {
             $this->msg = "Attenzione: Scheda \"$titolo\" $azioneWas con "
@@ -243,7 +248,7 @@ final class Categoria extends Sezione {
         $this->opConsentita = 
             Permessi::getAttivi() & Permessi::CREA_CATEGORIA;
         $this->checkOpEseguibile($this->opConsentita);
-        $link = "board.html?prog=$this->idProj";
+        $link = "board.html?proj=$this->idProj";
         $composizione = "No Utente-$this->teamProj-$this->idProj-$this->titolo";
         $stmt = null;
  
@@ -313,9 +318,9 @@ final class Categoria extends Sezione {
         $this->checkDatiInviati($this->categoria);
         Permessi::calcola($this->user, $this->idProj, $this->categoria);
         $this->opConsentita = 
-            Permessi::getAttivi() & Permessi::GESTISCI_CATEGORIA;
+            Permessi::getAttivi() & Permessi::GESTIONE_CATEGORIA;
         $this->checkOpEseguibile($this->opConsentita);
-        $link = "board.html?prog=$this->idProj";
+        $link = "board.html?proj=$this->idProj";
         $composizione = "No Utente-$this->team-$this->idProj-$this->categoria";
         $stmt = null; 
 
@@ -339,7 +344,7 @@ final class Categoria extends Sezione {
             );
 
             # 3. Eliminazione effettiva della categoria/stato
-            $this->deleteTupla(
+            Database::deleteTupla(
                 "stati", "id_progetto = ? AND stato = ?", "is", 
                 $this->idProj, $this->categoria
             );
@@ -384,7 +389,7 @@ final class Categoria extends Sezione {
         $this->checkDatiInviati($this->categoria);
         Permessi::calcola($this->user, $this->idProj, $this->categoria);
         $this->opConsentita = 
-            Permessi::getAttivi() & Permessi::GESTISCI_CATEGORIA;
+            Permessi::getAttivi() & Permessi::GESTIONE_CATEGORIA;
         $this->checkOpEseguibile($this->opConsentita);
 
         $azione = ($this->operazione === "mostra_categoria") 
@@ -454,14 +459,16 @@ final class Categoria extends Sezione {
         # Caso: categoria già visibile
         if ($row['isVisibile'] && $option === "mostra_categoria") {
             throw new mysqli_sql_exception(
-                "La categoria \"$this->categoria\" è già visibile!"
+                "La categoria \"$this->categoria\" &egrave; " . 
+                "gi&agrave; visibile!"
             );
         }
     
         # Caso: categoria già oscurata
         if (!$row['isVisibile'] && $option === "nascondi_categoria") {
             throw new mysqli_sql_exception(
-                "La categoria \"$this->categoria\" è già oscurata!"
+                "La categoria \"$this->categoria\" &egrave; " . 
+                "gi&agrave; oscurata!"
             );
         }
 
@@ -496,7 +503,7 @@ final class Categoria extends Sezione {
         $this->checkDatiInviati($this->categoria, $this->categoriaTarget);
         Permessi::calcola($this->user, $this->idProj, $this->categoria);
         $this->opConsentita = 
-            Permessi::getAttivi() & Permessi::GESTISCI_CATEGORIA;
+            Permessi::getAttivi() & Permessi::GESTIONE_CATEGORIA;
         $this->checkOpEseguibile($this->opConsentita);
         $azione = ($this->operazione === "sposta_categoria_sinistra") 
             ? 'prima'
@@ -511,7 +518,7 @@ final class Categoria extends Sezione {
             $this->mydb->begin_transaction();
 
             # 1. Verifica se le categorie esistono e le compare di posizione 
-            $dati_temp = $this->compareCategorie($option);
+            $dati_temp = $this->compareCategorie($azione);
             
             # 2. Trova la posizione dello stato di ordine più alto
             $condizioni = ["id_progetto" => ["?", "i", $this->idProj]];
@@ -522,10 +529,10 @@ final class Categoria extends Sezione {
 
             # 4. Aggiornamento (scambio) effettivo della 2 categorie/stati 
             $this->updatePosizioneCategoria(
-                $dati_temp[1]['ordine'], $dati_temp[0]['stato']
+                $dati_temp[0]['stato'], $dati_temp[1]['ordine']
             );
             $this->updatePosizioneCategoria(
-                $dati_temp[0]['ordine'], $dati_temp[1]['stato']
+                $dati_temp[1]['stato'], $dati_temp[0]['ordine']
             );
 
             $this->mydb->commit();
@@ -556,12 +563,12 @@ final class Categoria extends Sezione {
             END
         ";
         $result = Database::caricaDati(
-            $query, 'issss', $idProj, $this->categoria, $this->categoria_target, 
-            $this->$categoria, $this->categoria_target
+            $query, 'issss', $this->idProj, $this->categoria, 
+            $this->categoriaTarget, $this->categoria, $this->categoriaTarget
         );
         while ($row = $result->fetch_assoc()) {
             $dati_temp[] = [
-                'stato' => $row['stato'], 'ordine' => $row['ordine_stati']
+                'stato' => $row['stato'], 'ordine' => (int)$row['ordine_stati']
             ];
         }
 
@@ -571,7 +578,7 @@ final class Categoria extends Sezione {
                 "di operare potrebbe non esistere in questo progetto!"
             );
         } elseif (
-            $option === "sinistra" && 
+            $option === "prima" && 
             $dati_temp[0]['ordine'] < $dati_temp[1]['ordine']
         ) {
             # sx: verifica se categoria non è di ordine inferiore al target
@@ -581,7 +588,7 @@ final class Categoria extends Sezione {
                 "La categoria \"$stato\" precede gi&agrave; \"$stato_target\"!"
             );
         } elseif (
-            $option === "destra" && 
+            $option === "dopo" && 
             $dati_temp[0]['ordine'] > $dati_temp[1]['ordine']
         ) {
             # dx: verifica se categoria non è di ordine superiore al target

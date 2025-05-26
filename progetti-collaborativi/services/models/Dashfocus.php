@@ -66,8 +66,9 @@ final class Dashfocus extends Sezione {
 
             # numero totale di pagine
             $numero_tuple = Database::contaDa(
-                "utenti", "ultimo_accesso > DATE_SUB(NOW(), INTERVAL 24 HOUR)"
+                "utenti", "ruolo IN ('admin','capo_team','utente')"
             );
+            Risposta::set("num_tuple", $numero_tuple);
             $this->calcolaNumPagine($numero_tuple);
             $this->mydb->commit();
         } catch (Throwable $e) {
@@ -122,7 +123,7 @@ final class Dashfocus extends Sezione {
 
             # numero totale di pagine
             $numero_tuple = 
-                Database::contaDa('report', $condizione, true, $tipi, ...$params);
+                Database::contaDa('report', $condizione, $tipi, ...$params);
             $this->calcolaNumPagine($numero_tuple);
             $this->mydb->commit();
         } catch (mysqli_sql_exception $e) {
@@ -176,10 +177,6 @@ final class Dashfocus extends Sezione {
         if (is_string($condizione)) {
             $query .= " WHERE " . $condizione;
         }
-
-        Risposta::set(
-            "messaggio", $ordine . $this->recordPerPagina . $this->offset
-        );
         $query .= " 
             ORDER BY `timestamp` $ordine 
             LIMIT $this->recordPerPagina

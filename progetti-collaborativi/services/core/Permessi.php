@@ -1,16 +1,16 @@
 <?php
 
 final class Permessi {
-    const VISIONE_HOME = 1 << 0;
-    const VISIONE_TEAM = 1 << 1;
-    const VISIONE_BOARD = 1 << 2;
-    const COMMENTA_ATTIVITA = 1 << 3;
-    const GESTISCI_ATTIVITA = 1 << 4;
-    const ELIMINA_ATTIVITA = 1 << 5;
-    const CREA_CATEGORIA = 1 << 6;
-    const VISIONE_CATEGORIA = 1 << 7;
-    const GESTISCI_CATEGORIA = 1 << 8;
-    const DA_ADMIN = 1 << 9;
+    const VISIONE_HOME = 1 << 0; // Basta che viene passato l'utente
+    const VISIONE_TEAM = 1 << 1; // L'utente ha team o è admin
+    const VISIONE_BOARD = 1 << 2; // L'utente ha stesso team del proj (o admin)
+    const COMMENTA_ATTIVITA = 1 << 3; // attività è visibile
+    const GESTIONE_ATTIVITA = 1 << 4; // Se si è almeno responsabile_attivita+
+    const CTRL_ATTIVITA = 1 << 5; // Se si é capo del team, admin, o creatore
+    const CREA_CATEGORIA = 1 << 6; // Se si è capo del team o admin
+    const VISIONE_CATEGORIA = 1 << 7; // Se si è almeno capo_team+ o visibile
+    const GESTIONE_CATEGORIA = 1 << 8; // Se si è almeno capo_team+
+    const DA_ADMIN = 1 << 9; // Se si è admin
 
     private static int $attivi = 0;
     private static ?string $teamProj;
@@ -74,24 +74,24 @@ final class Permessi {
             }
             self::$attivi |= self::VISIONE_CATEGORIA;
             if ($user->isCapoDelTeam()) {
-                self::$attivi |= self::GESTISCI_CATEGORIA;
+                self::$attivi |= self::GESTIONE_CATEGORIA;
             }
         }
 
-        if ($num_args === 4 & (self::$attivi & self::VISIONE_CATEGORIA)) {
+        if ($num_args === 4 && (self::$attivi & self::VISIONE_CATEGORIA)) {
             $args = [$user->getEmail(), $idProj, $categoria, $attivita];
             if (
-                self::isScheda($user->isCapoDelTeam()) || 
-                self::isScheda($args, "creata")
+                self::isScheda($user->isCapoDelTeam(), $args, "creata") || 
+                self::isScheda(false, $args, "creata")
             ) {
-                self::$attivi |= ELIMINA_ATTIVITA;
-                self::$attivi |= GESTISCI_ATTIVITA;
-                self::$attivi |= COMMENTA_ATTIVITA;
-            } elseif (self::isScheda($args, "assegnata")) {
-                self::$attivi |= GESTISCI_ATTIVITA;
-                self::$attivi |= COMMENTA_ATTIVITA;
-            } elseif (self::isScheda($args, "accessibile")) {
-                self::$attivi |= COMMENTA_ATTIVITA;
+                self::$attivi |= self::CTRL_ATTIVITA;
+                self::$attivi |= self::GESTIONE_ATTIVITA;
+                self::$attivi |= self::COMMENTA_ATTIVITA;
+            } elseif (self::isScheda(false, $args, "assegnata")) {
+                self::$attivi |= self::GESTIONE_ATTIVITA;
+                self::$attivi |= self::COMMENTA_ATTIVITA;
+            } elseif (self::isScheda(false, $args, "accessibile")) {
+                self::$attivi |= self::COMMENTA_ATTIVITA;
             }
         }
     }
@@ -175,8 +175,8 @@ final class Permessi {
                 AND (u.ruolo = 'utente' OR u.ruolo = 'capo_team')
         ";
         $types = "siss";
-        $result = Database::caricaDati($query, $types, $params); 
-        $row = $result-fetch_assoc();
+        $result = Database::caricaDati($query, $types, ...$params); 
+        $row = $result->fetch_assoc();
         if ((int)$row['isTrue'] !== 1) {
             return false;
         }

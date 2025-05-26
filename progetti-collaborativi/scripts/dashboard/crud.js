@@ -137,7 +137,7 @@ function bounceScrolling(e) {
 
 function perCreazioneProj(target, opzioniTeamAssegnabili) {
     elHTML = `
-    <form id='--edit' class="proj-selector" method="post" action="services/dashboard_crud.php">
+    <form id='--edit' class="proj-selector" method="post" action="services/controllers/crud.php?proj_action">
         <div class="nome-progetto">
             <label for="nome-progetto"><h3 nome-progetto=""></h3></label>
             <input type="text" name="nome_progetto" id="nome-progetto" minlength="1" maxlength="50" placeholder="Scegli Nome Progetto">   
@@ -163,7 +163,7 @@ function perCreazioneProj(target, opzioniTeamAssegnabili) {
             <div class="vertical-rule"></div>
             <button type="button" class="--conferma-creazione">Crea</button>
         </div>
-        <input type="submit" name="create_progetto" style="display: none;" disabled>
+        <input type="submit" name="crea" style="display: none;" disabled>
     </form>
     `
     distanzaDalBordoTop(target.firstChild);
@@ -184,7 +184,7 @@ function perModificaProj(target, opzioniTeamAssegnabili) {
     let concProj = (abbTProj === "null" || abbTProj === "" ) ? "" : `${abbTProj} | ${teamProj}`;
     let selProj = (abbTProj === "null" || abbTProj === "" ) ? "Seleziona" : `${abbTProj} | ${teamProj}`;
     elHTML = `
-    <form id='--edit' idProj="${idProj}" class="proj-selector" method="post" action="services/dashboard_crud.php">
+    <form id='--edit' idProj="${idProj}" class="proj-selector" method="post" action="services/controllers/crud.php?proj_action">
         <div class="nome-progetto">
             <label for="nome-progetto"><h3 nome-progetto="">${nameProj}</h3></label>
             <input type="text" name="nome_progetto" id="nome-progetto" disabled>   
@@ -217,7 +217,7 @@ function perModificaProj(target, opzioniTeamAssegnabili) {
             <button type="button" class="--submit-form">Conferma</button>
         </div>
         <input type="hidden" name="id_progetto" value="${idFoProj}" valore=${idFoProj} disabled>
-        <input type="submit" name="edit_progetto" style="display: none;" disabled>
+        <input type="submit" name="aggiorna" style="display: none;" disabled>
     </form>
     `
     // Creo un template il cui contenuto sará copiato prima del fratello successivo dell'elemento cliccato
@@ -231,7 +231,7 @@ function perModificaProj(target, opzioniTeamAssegnabili) {
 
 function perCreazioneTeam(target) {
     elHTML = `
-    <form id='--edit' class="team-selector" method="post" action="services/dashboard_crud.php">
+    <form id='--edit' class="team-selector" method="post" action="services/controllers/crud.php?team_action">
         <div class="sigla-team">
             <label for="sigla-team"><h3 sigla-team=""></h3></label>
             <input type="text" name="sigla_team" id="sigla-team" minlength="3" maxlength="3" placeholder="Scegli Sigla Team">   
@@ -252,7 +252,7 @@ function perCreazioneTeam(target) {
             <div class="vertical-rule"></div>
             <button type="button" class="--conferma-creazione">Crea</button>
         </div>
-        <input type="submit" name="create_team" style="display: none;" disabled>
+        <input type="submit" name="crea" style="display: none;" disabled>
     </form>
     `
     distanzaDalBordoTop(target.firstChild);
@@ -276,12 +276,13 @@ function perModificaTeam(target) {
     let concTeam = `${anutTeam} | ${respTeam}`;
     // let selTeam = (abbTProj === "null" || abbTProj === "" ) ? "Seleziona" : `${abbTProj} | ${teamProj}`;
     elHTML = `
-    <form id='--edit' idTeam="${idTeam}" class="team-selector" method="post" action="services/dashboard_crud.php">
+    <form id='--edit' idTeam="${idTeam}" class="team-selector" method="post" action="./services/controllers/crud.php?team_action">
         <div class="nProgetti-team">
             <h3 nProgetti-team="">Numero Progetti Assegnati: ${numPTeam}</h3>
         </div>
         <div class="sigla-team">
             <label for="sigla-team"><h3 sigla-team="">Sigla: ${siglTeam}</h3></label> 
+            <input type="hidden" name="sigla_team" id="sigla-team" value="${siglTeam}">
         </div>
         <div class="nome-team">
             <label for="nome-team"><h3 nome-team="">${nameTeam}</h3></label>
@@ -305,7 +306,7 @@ function perModificaTeam(target) {
             <button type="button" class="--submit-form">Conferma</button>
         </div>
         <input type="hidden" name="id_team" value="${idFoTeam}" valore=${idFoTeam} disabled>
-        <input type="submit" name="edit_team" style="display: none;" disabled>
+        <input type="submit" name="aggiorna" style="display: none;" disabled>
     </form>
     `
     // Creo un template il cui contenuto sará copiato prima del fratello successivo dell'elemento cliccato

@@ -95,7 +95,7 @@ class AuthManager {
         }
 
         # se la password è corretta, creare un oggetto utente
-        $utente = new Utente($row['uuid'], $mysqli);
+        $utente = Utente::caricaByUUID($row['uuid']);
 
         # verificare quanto debba durare la sessione lato server.
         $durata_sessione = match($utente->getRuolo()) {

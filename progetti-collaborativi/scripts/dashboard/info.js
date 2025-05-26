@@ -72,7 +72,7 @@ function estrazioneInfo() {
     }
     if (!rispostaServer.isAdmin) {
         console.log(rispostaServer);
-        localStorage.setItem('messaggio', 'Accesso negato: connessione assente o permessi non sufficiente a visualizzare la pagina!');
+        localStorage.setItem('messaggio', 'Accesso negato: connessione assente o permessi non sufficienti a visualizzare la pagina!');
         localStorage.setItem('tipoMessaggio', 'info-notifica');
         window.location.href = 'portal.html';
         return;
